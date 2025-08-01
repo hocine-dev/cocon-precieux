@@ -21,6 +21,10 @@ export const metadata: Metadata = {
   keywords:
     "cosmétiques naturels, baume multi-usage, soins bio, made in France, végan, peau sensible, hydratation naturelle",
   authors: [{ name: "Cocon Précieux" }],
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#C9A74D" }, 
+    { media: "(prefers-color-scheme: dark)", color: "#C9A74D" },  
+  ],
   creator: "Cocon Précieux",
   publisher: "Cocon Précieux",
   robots: "index, follow",

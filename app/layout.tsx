@@ -14,6 +14,7 @@ const playfair = Playfair_Display({
 })
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://xn--coconprcieux-heb.fr/"), 
   title: "Cocon Précieux - Soins Naturels & Cosmétiques Bio Made in France",
   description:
     "Découvrez Le Baume Précieux, un soin multi-usage naturel aux 8 ingrédients essentiels. 100% végan, 97% naturel, fabriqué en France. Hydrate, apaise et sublime votre peau.",
@@ -33,7 +34,7 @@ export const metadata: Metadata = {
       "Un soin qui apaise, un geste d'amour pour la peau. Découvrez nos cosmétiques naturels fabriqués avec amour en France.",
     images: [
       {
-        url: "/og-image.jpg",
+        url: "/image1.jpg",
         width: 1200,
         height: 630,
         alt: "Cocon Précieux - Le Baume Précieux",
@@ -44,13 +45,14 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Cocon Précieux - Soins Naturels Bio",
     description: "Un soin qui apaise, un geste d'amour pour la peau",
-    images: ["/og-image.jpg"],
+    images: ["/og-image.jpg"], // also resolves correctly
   },
   alternates: {
     canonical: "https://cocon-precieux.fr",
   },
-    generator: 'v0.dev'
-}
+  generator: 'Hocine Dev',
+};
+
 
 export default function RootLayout({
   children,

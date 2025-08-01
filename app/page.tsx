@@ -39,59 +39,64 @@ export default function HomePage() {
       <Header />
 
       {/* Hero Section */}
-      <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#F7E0D8]/30 to-[#E6D2B5]/20"></div>
-        <div className="relative z-10 container mx-auto px-4 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            className="max-w-4xl mx-auto"
-          >
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-serif text-gray-800 mb-6 leading-tight">
-              Un soin qui apaise,
-              <br />
-              <span className="text-[#C9A74D]">un geste d'amour</span>
-              <br />
-              pour la peau
-            </h1>
-            <p className="text-lg md:text-xl text-gray-600 mb-8 max-w-2xl mx-auto leading-relaxed">
-              Un baume multi-usage naturel, composé de seulement 8 ingrédients
-              essentiels, soigneusement sélectionnés pour leur efficacité.
-              Riche, fondant et sensoriel, il hydrate, apaise et sublime la peau
-              tout en douceur.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Button
-                size="lg"
-                className="bg-[#C9A74D] hover:bg-[#C9A74D]/90 text-white px-8 py-6 text-lg rounded-full"
-                asChild
-              >
-                <Link href="/produit">Découvrir le baume</Link>
-              </Button>
-              {/* This button should be a link to navigate to the #story section */}
-              <Button
-                asChild
-                variant="ghost"
-                size="lg"
-                className="text-[#C9A74D] hover:bg-[#F7E0D8]/50 px-8 py-6 text-lg"
-              >
-                <Link href="#story">Mon histoire</Link>
-              </Button>
-            </div>
-          </motion.div>
-        </div>
+     <section className="relative min-h-[90vh] flex flex-col lg:flex-row overflow-hidden">
+  {/* Fond en dégradé */}
+  <div className="absolute inset-0 bg-gradient-to-br from-[#F7E0D8]/30 to-[#E6D2B5]/20"></div>
 
-        <div className="absolute right-0 top-1/2 transform -translate-y-1/2 w-1/2 h-full opacity-20 md:opacity-40">
-          <Image
-            src="/produit%20principale.jpg"
-            alt="Le baume précieux dans son environnement"
-            fill
-            className="object-cover object-left"
-            priority
-          />
-        </div>
-      </section>
+  {/* ---- CONTENEUR IMAGE ---- */}
+  {/* Sur mobile: en haut (order-1) | Sur desktop: à droite (lg:order-2) */}
+  <div className="relative w-full lg:w-1/2 h-[45vh] lg:h-[90vh] order-1 lg:order-2">
+    <Image
+      src="/produit%20principale.jpg"
+      alt="Le baume précieux dans son environnement"
+      fill
+      className="object-cover object-center" // object-center est souvent un meilleur choix
+      priority
+    />
+  </div>
+
+  {/* ---- CONTENEUR TEXTE ---- */}
+  {/* Sur mobile: en bas (order-2) | Sur desktop: à gauche (lg:order-1) */}
+  <div className="relative z-10 w-full lg:w-1/2 flex items-center justify-center order-2 lg:order-1 px-6 py-12 md:p-12">
+    <motion.div
+      initial={{ opacity: 0, y: 50 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.8, ease: "easeOut" }}
+      className="max-w-2xl text-center lg:text-left"
+    >
+      <h1 className="text-4xl md:text-6xl lg:text-7xl font-serif text-gray-800 mb-6 leading-tight">
+        Un soin qui apaise,
+        <br />
+        <span className="text-[#C9A74D]">un geste d'amour</span>
+        <br />
+        pour la peau
+      </h1>
+      <p className="text-lg md:text-xl text-gray-600 mb-8 leading-relaxed">
+        Un baume multi-usage naturel, composé de seulement 8 ingrédients
+        essentiels, soigneusement sélectionnés pour leur efficacité. Riche,
+        fondant et sensoriel, il hydrate, apaise et sublime la peau tout en
+        douceur.
+      </p>
+      <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start items-center">
+        <Button
+          size="lg"
+          className="bg-[#C9A74D] hover:bg-[#C9A74D]/90 text-white px-8 py-6 text-lg rounded-full"
+          asChild
+        >
+          <Link href="/produit">Découvrir le baume</Link>
+        </Button>
+        <Button
+          asChild
+          variant="ghost"
+          size="lg"
+          className="text-[#C9A74D] hover:bg-[#F7E0D8]/50 px-8 py-6 text-lg"
+        >
+          <Link href="#story">Mon histoire</Link>
+        </Button>
+      </div>
+    </motion.div>
+  </div>
+</section>
 
       {/* Benefits Section */}
       <section className="py-20 bg-white">

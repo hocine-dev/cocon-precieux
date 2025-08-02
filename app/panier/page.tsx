@@ -121,7 +121,7 @@ export default function CartPage() {
           <div className="flex flex-col items-center justify-center py-20">
             <Image src="/logo.png" alt="Panier vide" width={80} height={80} className="mb-6 opacity-80" />
             <p className="text-gray-600 text-lg mb-4">Votre panier est vide.</p>
-            <Button asChild className="bg-[#C9A74D] text-white rounded-full px-8 py-4">
+            <Button asChild className="bg-[#C9A74D] text-white rounded-full px-8 py-4 hover:bg-[#C9A74D]">
               <Link href="/produit">Découvrir le baume</Link>
             </Button>
           </div>

@@ -1,5 +1,6 @@
   "use client"
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { format } from 'date-fns';
 import Cookies from 'js-cookie';
 import { Button } from "@/components/ui/button";
@@ -33,14 +34,17 @@ const STATUS_OPTIONS = [
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [isAuth, setIsAuth] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [login, setLogin] = useState({ username: "", password: "" });
   const [error, setError] = useState("");
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [dateFilter, setDateFilter] = useState<string>("");
+  const [nameFilter, setNameFilter] = useState<string>("");
   const [statusChanged, setStatusChanged] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [changedOrder, setChangedOrder] = useState<{id: string, status: string} | null>(null);
+  const router = useRouter();
 
 
 function handleLogout() {
@@ -55,6 +59,7 @@ function handleLogout() {
     if (token) {
       setIsAuth(true);
     }
+    setLoading(false);
   }, []);
 
   useEffect(() => {
@@ -62,6 +67,9 @@ function handleLogout() {
       let url = `/api/orders?page=${page}&limit=10`;
       if (dateFilter) {
         url += `&day=${dateFilter}`;
+      }
+      if (nameFilter) {
+        url += `&name=${encodeURIComponent(nameFilter)}`;
       }
       fetch(url)
         .then(res => res.json())
@@ -72,7 +80,7 @@ function handleLogout() {
           }
         });
     }
-  }, [isAuth, page, dateFilter]);
+  }, [isAuth, page, dateFilter, nameFilter]);
 
   async function updateStatus(orderId: string, status: Order["status"]) {
     try {
@@ -119,30 +127,12 @@ function handleLogout() {
     }
   }
 
+  if (loading) {
+    return null;
+  }
   if (!isAuth) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-[#FDFBF6]">
-        <form onSubmit={handleLogin} className="bg-white/90 p-8 rounded-xl shadow space-y-4 w-full max-w-xs">
-          <h2 className="text-xl font-bold text-center mb-2">Connexion administrateur</h2>
-          <input
-            className="w-full border border-[#E6D2B5] rounded px-3 py-2"
-            placeholder="Nom d'utilisateur"
-            value={login.username}
-            onChange={e => setLogin({ ...login, username: e.target.value })}
-            autoFocus
-          />
-          <input
-            className="w-full border border-[#E6D2B5] rounded px-3 py-2"
-            placeholder="Mot de passe"
-            type="password"
-            value={login.password}
-            onChange={e => setLogin({ ...login, password: e.target.value })}
-          />
-          {error && <div className="text-red-500 text-sm text-center">{error}</div>}
-          <Button type="submit" className="w-full bg-[#C9A74D] text-white rounded-full py-2">Se connecter</Button>
-        </form>
-      </div>
-    );
+    router.replace('/admin/login');
+    return null;
   }
 
   return (
@@ -166,11 +156,18 @@ function handleLogout() {
         <div className="flex flex-col gap-4 max-w-4xl mx-auto">
           <div className="flex justify-between items-center mb-2">
             <h1 className="text-2xl font-serif text-gray-800 text-center">Gestion Commandes (Admin)</h1>
-            <Button onClick={handleLogout} className="bg-red-500 text-white rounded-full px-4 py-2">Se déconnecter</Button>
+            <Button onClick={handleLogout} className="bg-red-500 hover:bg-red-500 text-white rounded-full px-4 py-2">Se déconnecter</Button>
           </div>
           <div className="flex flex-col sm:flex-row gap-2 items-center mb-4">
+            <input
+              type="text"
+              value={nameFilter}
+              onChange={e => { setNameFilter(e.target.value); setPage(1); }}
+              placeholder="Rechercher par nom de client"
+              className="border rounded px-3 py-2"
+            />
             <input type="date" value={dateFilter} onChange={e => { setDateFilter(e.target.value); setPage(1); }} className="border rounded px-3 py-2" />
-            <Button onClick={() => { setDateFilter(""); setPage(1); }} variant="outline" className="ml-2">Réinitialiser</Button>
+            <Button onClick={() => { setDateFilter(""); setNameFilter(""); setPage(1); }} variant="outline" className="ml-2">Réinitialiser</Button>
           </div>
           {orders.length === 0 ? (
             <p className="text-center text-gray-600">Aucune commande pour le moment.</p>

@@ -87,6 +87,14 @@ export async function GET(req: Request) {
         const end = new Date(day + 'T23:59:59.999Z');
         filter.createdAt = { $gte: start, $lte: end };
       }
+      const name = url.searchParams.get('name');
+      if (name) {
+        // Recherche insensible à la casse sur nom ou prenom
+        filter.$or = [
+          { nom: { $regex: name, $options: 'i' } },
+          { prenom: { $regex: name, $options: 'i' } }
+        ];
+      }
       const total = await collection.countDocuments(filter);
       const orders = await collection.find(filter)
         .sort({ createdAt: -1 })

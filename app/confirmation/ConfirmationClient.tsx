@@ -93,7 +93,7 @@ export default function ConfirmationClient() {
           <p className="text-gray-600 text-center mb-2">Montant à virer : <span className="font-semibold">{order.total}€</span></p>
           <p className="text-[#C9A74D] text-center font-semibold mb-2">Merci d'indiquer la référence de votre commande : <span className="font-mono">{order._id || order.id}</span> dans le libellé du virement.</p>
           <p className="text-gray-500 text-xs text-center mb-6">Un email de confirmation vous sera envoyé après réception du paiement.</p>
-          <Button className="bg-[#C9A74D] text-white rounded-full px-8 py-4 flex items-center gap-2" onClick={() => router.push(`/commande?id=${order._id}`)}>
+          <Button className="bg-[#C9A74D] text-white rounded-full px-8 py-4 flex items-center gap-2 hover:bg-[#C9A74D]" onClick={() => router.push(`/commande?id=${order._id}`)}>
             Voir l'état de ma commande <ArrowRight className="w-4 h-4" />
           </Button>
         </Card>

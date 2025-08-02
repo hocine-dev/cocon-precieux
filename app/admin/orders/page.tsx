@@ -35,15 +35,18 @@ export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [isAuth, setIsAuth] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [statusLoading, setStatusLoading] = useState<string | null>(null);
   const [login, setLogin] = useState({ username: "", password: "" });
   const [error, setError] = useState("");
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [dateFilter, setDateFilter] = useState<string>("");
   const [nameFilter, setNameFilter] = useState<string>("");
+  const [showCancelledFinalized, setShowCancelledFinalized] = useState(false);
   const [statusChanged, setStatusChanged] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [changedOrder, setChangedOrder] = useState<{id: string, status: string} | null>(null);
+  const [redirecting, setRedirecting] = useState(false);
   const router = useRouter();
 
 
@@ -64,6 +67,9 @@ function handleLogout() {
 
   useEffect(() => {
     if (isAuth) {
+      // On ne montre pas le spinner global pour le filtre nom/prénom
+      const shouldShowLoading = dateFilter !== "" || page !== 1;
+      if (shouldShowLoading) setLoading(true);
       let url = `/api/orders?page=${page}&limit=10`;
       if (dateFilter) {
         url += `&day=${dateFilter}`;
@@ -78,12 +84,14 @@ function handleLogout() {
             setOrders(data.orders);
             setTotal(data.total);
           }
-        });
+        })
+        .finally(() => { if (shouldShowLoading) setLoading(false); });
     }
   }, [isAuth, page, dateFilter, nameFilter]);
 
   async function updateStatus(orderId: string, status: Order["status"]) {
     try {
+      setStatusLoading(orderId);
       // Chercher l'objet order pour trouver _id si dispo
       const order = orders.find(o => o.id === orderId || o._id === orderId);
       const idToSend = order?._id || orderId;
@@ -103,6 +111,8 @@ function handleLogout() {
       setShowModal(true);
     } catch (e) {
       alert('Erreur lors de la mise à jour du statut');
+    } finally {
+      setStatusLoading(null);
     }
   }
 
@@ -127,11 +137,25 @@ function handleLogout() {
     }
   }
 
-  if (loading) {
-    return null;
+  // Redirection immédiate dès que loading est fini et non authentifié
+  useEffect(() => {
+    if (!loading && !isAuth) {
+      setRedirecting(true);
+      router.replace('/admin/login');
+    }
+  }, [loading, isAuth, router]);
+
+  if (loading || (!isAuth && !redirecting)) {
+    // Afficher le spinner ou rien tant que la redirection n'est pas déclenchée
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#FDFBF6]">
+        <span className="block w-12 h-12 border-4 border-[#C9A74D] border-t-transparent rounded-full animate-spin mb-6"></span>
+        <p className="text-gray-600 text-lg mb-4">Chargement des commandes...</p>
+      </div>
+    );
   }
-  if (!isAuth) {
-    router.replace('/admin/login');
+  if (!isAuth && redirecting) {
+    // Ne rien afficher pendant la redirection
     return null;
   }
 
@@ -167,13 +191,22 @@ function handleLogout() {
               className="border rounded px-3 py-2"
             />
             <input type="date" value={dateFilter} onChange={e => { setDateFilter(e.target.value); setPage(1); }} className="border rounded px-3 py-2" />
-            <Button onClick={() => { setDateFilter(""); setNameFilter(""); setPage(1); }} variant="outline" className="ml-2">Réinitialiser</Button>
+            <label className="flex items-center gap-2 text-sm ml-2 select-none cursor-pointer">
+              <input
+                type="checkbox"
+                checked={showCancelledFinalized}
+                onChange={e => setShowCancelledFinalized(e.target.checked)}
+                className="accent-[#C9A74D]"
+              />
+              Afficher annulées/finalisées
+            </label>
+            <Button onClick={() => { setDateFilter(""); setNameFilter(""); setShowCancelledFinalized(false); setPage(1); }} variant="outline" className="ml-2">Réinitialiser</Button>
           </div>
-          {orders.length === 0 ? (
+          {orders.filter(order => showCancelledFinalized || (order.status !== 'annulé' && order.status !== 'finalisé')).length === 0 ? (
             <p className="text-center text-gray-600">Aucune commande pour le moment.</p>
           ) : (
             <div className="space-y-6">
-              {orders.map((order) => (
+              {orders.filter(order => showCancelledFinalized || (order.status !== 'annulé' && order.status !== 'finalisé')).map((order) => (
                 <Card key={order._id || order.id} className={`p-4 bg-white/80 rounded-xl shadow transition-all ${statusChanged === order.id || statusChanged === order._id ? 'ring-2 ring-green-400' : ''}`}>
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-2">
                     <div>
@@ -183,15 +216,21 @@ function handleLogout() {
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-xs text-gray-500">Status:</span>
-                      <select
-                        className="border rounded px-2 py-1 text-sm"
-                        value={order.status}
-                        onChange={e => updateStatus(order.id, e.target.value as Order["status"])}
-                      >
-                        {STATUS_OPTIONS.map(opt => (
-                          <option key={opt} value={opt}>{opt}</option>
-                        ))}
-                      </select>
+                      <div className="relative">
+                        <select
+                          className="border rounded px-2 py-1 text-sm pr-8"
+                          value={order.status}
+                          onChange={e => updateStatus(order.id, e.target.value as Order["status"])}
+                          disabled={statusLoading === order.id}
+                        >
+                          {STATUS_OPTIONS.map(opt => (
+                            <option key={opt} value={opt}>{opt}</option>
+                          ))}
+                        </select>
+                        {statusLoading === order.id && (
+                          <span className="absolute right-2 top-1/2 -translate-y-1/2 block w-4 h-4 border-2 border-[#C9A74D] border-t-transparent rounded-full animate-spin"></span>
+                        )}
+                      </div>
                     </div>
                   </div>
                   <div className="overflow-x-auto">

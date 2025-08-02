@@ -29,7 +29,6 @@ export default function AdminDashboard() {
         </div>
         <nav className={`flex-col sm:flex-row flex sm:items-center gap-2 sm:gap-4 w-full sm:w-auto ${menuOpen ? 'flex' : 'hidden sm:flex'}`}>
           <a href="/admin/orders" className="bg-white/10 hover:bg-white/20 rounded-full px-4 py-2 text-white font-semibold text-center transition">Gestion des commandes</a>
-          <a href="/admin/add-product" className="bg-white/10 hover:bg-white/20 rounded-full px-4 py-2 text-white font-semibold text-center transition">Ajouter un produit</a>
           <button onClick={handleLogout} className="bg-red-500 hover:bg-red-600 rounded-full px-4 py-2 text-white font-semibold transition">Déconnexion</button>
           <div className="flex items-center gap-2 mt-2 sm:mt-0">
             <UserCircle className="w-8 h-8 text-white" />
@@ -47,7 +46,6 @@ export default function AdminDashboard() {
           <p className="text-gray-700 text-center mb-6">Gérez les commandes, les utilisateurs et les paramètres du site depuis ce tableau de bord.</p>
           <div className="flex flex-col gap-4 w-full">
             <a href="/admin/orders" className="w-full bg-[#C9A74D] text-white rounded-full py-3 text-center font-semibold shadow hover:bg-[#b8963b] transition">Gestion des commandes</a>
-            <a href="/admin/add-product" className="w-full bg-[#E6D2B5] text-[#C9A74D] rounded-full py-3 text-center font-semibold shadow hover:bg-[#d1b77a] transition">Ajouter un produit</a>
             <button onClick={handleLogout} className="w-full bg-red-500 text-white rounded-full py-3 font-semibold shadow hover:bg-red-600 transition">Déconnexion</button>
           </div>
         </div>

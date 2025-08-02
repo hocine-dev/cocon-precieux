@@ -48,4 +48,7 @@ coverage/
 *.sublime*
 *.swp
 *.bak
+
+# Sensitive admin init file
+app/api/admin/init/route.ts
 *.tmp

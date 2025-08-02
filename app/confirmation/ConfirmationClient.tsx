@@ -86,12 +86,14 @@ export default function ConfirmationClient() {
         <Card className="max-w-xl w-full p-6 bg-white/90 rounded-xl shadow flex flex-col items-center">
           <BadgeCheck className="w-12 h-12 text-[#C9A74D] mb-2" />
           <h1 className="text-2xl font-serif font-bold mb-2 text-center">Merci pour votre commande !</h1>
-          <p className="text-gray-700 text-center mb-4">Veuillez effectuer un virement bancaire du montant total à l'IBAN suivant :</p>
+          <p className="text-gray-600 text-center mb-2">Veuillez effectuer un virement bancaire du montant total suivant :</p>
+          <div className="mb-2 text-center">
+            <span className="font-bold text-[#C9A74D] text-2xl">{order.total}€</span>
+          </div>
+          <p className="text-[#C9A74D] text-center font-semibold mb-2">Merci d'indiquer la référence de votre commande : <span className="font-mono">{order._id || order.id}</span> dans le libellé du virement.</p>
           <div className="bg-white rounded-xl shadow p-4 mb-4 text-center">
             <span className="font-bold text-[#C9A74D] text-lg">{IBAN}</span>
           </div>
-          <p className="text-gray-600 text-center mb-2">Montant à virer : <span className="font-semibold">{order.total}€</span></p>
-          <p className="text-[#C9A74D] text-center font-semibold mb-2">Merci d'indiquer la référence de votre commande : <span className="font-mono">{order._id || order.id}</span> dans le libellé du virement.</p>
           <p className="text-gray-500 text-xs text-center mb-6">Un email de confirmation vous sera envoyé après réception du paiement.</p>
           <Button className="bg-[#C9A74D] text-white rounded-full px-8 py-4 flex items-center gap-2 hover:bg-[#C9A74D]" onClick={() => router.push(`/commande?id=${order._id}`)}>
             Voir l'état de ma commande <ArrowRight className="w-4 h-4" />

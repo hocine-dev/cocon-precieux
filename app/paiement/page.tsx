@@ -83,7 +83,7 @@ async function handleSubmit(e: React.FormEvent) {
       if (data.id) {
         router.push(`/confirmation?id=${data.id}`);
       } else {
-        setSubmitted(true); // fallback
+        router.push(`/confirmation`);
       }
     } catch (err) {
       alert("Erreur lors de l'enregistrement de la commande. Veuillez réessayer.");
@@ -112,20 +112,7 @@ async function handleSubmit(e: React.FormEvent) {
   }
 
   if (submitted) {
-    // On ne connaît pas l'ID ici, mais on peut rappeler au client de bien indiquer la référence reçue sur la page suivante
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-[#FDFBF6] px-4">
-        <h1 className="text-2xl font-serif text-gray-800 mb-4 text-center">Merci pour votre commande !</h1>
-        <p className="text-gray-700 text-center mb-4">Veuillez effectuer un virement bancaire du montant total à l'IBAN suivant :</p>
-        <div className="bg-white rounded-xl shadow p-4 mb-4 text-center">
-          <span className="font-bold text-[#C9A74D]">{IBAN}</span>
-        </div>
-        <p className="text-gray-600 text-center mb-2">Montant à virer : <span className="font-semibold">{total}€ + 5,25€ (livraison)</span></p>
-        <p className="text-[#C9A74D] text-center font-semibold mb-2">Merci d'indiquer la référence de votre commande (affichée sur la page suivante) dans le libellé du virement.</p>
-        <p className="text-gray-500 text-xs text-center mb-6">Un email de confirmation vous sera envoyé après réception du paiement.</p>
-        <Button className="bg-[#C9A74D] text-white rounded-full px-8 py-4 hover:bg-[#C9A74D] hover:text-white" onClick={() => router.push("/")}>Retour à l'accueil</Button>
-      </div>
-    );
+    return null;
   }
 
   return (

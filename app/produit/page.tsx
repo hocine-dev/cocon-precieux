@@ -7,7 +7,29 @@ import { Star, Heart, Leaf, Award, Truck, Shield, ArrowLeft, Plus, Minus, Zap } 
 import { motion } from "framer-motion"
 import Link from "next/link"
 import Image from "next/image"
-import { useState } from "react"
+import { useState, useEffect } from "react"
+// Utilitaire pour lire la quantité totale du panier
+function getCartQuantity(): number {
+  if (typeof window === "undefined") return 0;
+  const stored = localStorage.getItem(CART_KEY);
+  if (!stored) return 0;
+  try {
+    const cart: CartItem[] = JSON.parse(stored);
+    return cart.reduce((sum, item) => sum + item.quantity, 0);
+  } catch {
+    return 0;
+  }
+}
+// Type for a cart item (doit matcher le panier)
+interface CartItem {
+  id: string;
+  name: string;
+  price: number;
+  image: string;
+  quantity: number;
+}
+
+const CART_KEY = "cocon_precieux_cart";
 
 const fadeInUp = {
   initial: { opacity: 0, y: 30 },
@@ -47,6 +69,46 @@ export default function ProductPage() {
     "Barbe - Soin et brillance",
   ]
 
+  // Ajout au panier + gestion quantité header
+  const [added, setAdded] = useState(false);
+  const [cartQty, setCartQty] = useState(0);
+
+  // Met à jour la quantité du panier au chargement et après ajout
+  useEffect(() => {
+    setCartQty(getCartQuantity());
+    // Ecoute le stockage local pour MAJ si modifié ailleurs
+    const handler = () => setCartQty(getCartQuantity());
+    window.addEventListener("storage", handler);
+    return () => window.removeEventListener("storage", handler);
+  }, []);
+
+  const handleAddToCart = () => {
+    const item: CartItem = {
+      id: "baume-precieux",
+      name: "Le Baume Précieux",
+      price: 25,
+      image: "/produit%20principale.jpg?height=500&width=500",
+      quantity,
+    };
+    let cart: CartItem[] = [];
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem(CART_KEY);
+      if (stored) cart = JSON.parse(stored);
+      const existing = cart.find((i) => i.id === item.id);
+      if (existing) {
+        cart = cart.map((i) =>
+          i.id === item.id ? { ...i, quantity: i.quantity + quantity } : i
+        );
+      } else {
+        cart.push(item);
+      }
+      localStorage.setItem(CART_KEY, JSON.stringify(cart));
+      setAdded(true);
+      setCartQty(getCartQuantity());
+      setTimeout(() => setAdded(false), 1500);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#FDFBF6]">
       {/* Header with centered logo */}
@@ -74,12 +136,19 @@ export default function ProductPage() {
           </div>
           {/* Right: Panier */}
           <div className="flex-1 flex justify-end">
-            <Button
-              variant="outline"
-              className="border-[#C9A74D] text-[#C9A74D] hover:bg-[#C9A74D] hover:text-white bg-transparent"
-            >
-              Panier
-            </Button>
+            <Link href="/panier" className="relative">
+              <Button
+                variant="outline"
+                className="border-[#C9A74D] text-[#C9A74D] hover:bg-[#C9A74D] hover:text-white bg-transparent"
+              >
+                Panier
+                {cartQty > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-[#C9A74D] text-white text-xs font-bold rounded-full px-2 py-0.5 shadow-md animate-bounce">
+                    {cartQty}
+                  </span>
+                )}
+              </Button>
+            </Link>
           </div>
         </div>
       </header>
@@ -196,12 +265,24 @@ export default function ProductPage() {
             </div>
 
             {/* CTA Button */}
-            <Button
-              size="lg"
-              className="w-full bg-[#C9A74D] hover:bg-[#C9A74D]/90 text-white py-6 text-lg rounded-full"
-            >
-              Acheter maintenant - {25 * quantity}€
-            </Button>
+            <div className="flex flex-col gap-3">
+              <Button
+                size="lg"
+                className="w-full bg-[#C9A74D] hover:bg-[#C9A74D]/90 text-white py-6 text-lg rounded-full transition"
+                onClick={handleAddToCart}
+                disabled={added}
+              >
+                {added ? "Ajouté au panier !" : `Ajouter au panier - ${25 * quantity}€`}
+              </Button>
+              <Button
+                asChild
+                size="lg"
+                variant="outline"
+                className="w-full border-[#C9A74D] text-[#C9A74D] hover:bg-[#C9A74D]/10 py-6 text-lg rounded-full"
+              >
+                <a href="/panier">Voir mon panier</a>
+              </Button>
+            </div>
 
           </motion.div>
         </div>

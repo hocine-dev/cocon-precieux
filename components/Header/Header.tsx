@@ -7,6 +7,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Menu, X, Facebook, Instagram } from 'lucide-react';
 import { Button } from '@/components/ui/button'; 
+import { CartQuantityBadge } from "@/components/CartQuantityBadge";
 
 // --- Données centralisées pour les liens ---
 const navLinks = [
@@ -79,13 +80,16 @@ export function Header() {
               ))}
             </div>
             
-            <Button
-              variant="outline"
-              className="border-[#C9A74D] text-[#C9A74D] hover:bg-[#C9A74D] hover:text-white bg-transparent rounded-xl shadow-sm px-4 py-2 font-semibold transition-all duration-200"
-              asChild
-            >
-              <Link href="/panier">Panier</Link>
-            </Button>
+            <div className="relative">
+              <Button
+                variant="outline"
+                className="border-[#C9A74D] text-[#C9A74D] hover:bg-[#C9A74D] hover:text-white bg-transparent rounded-xl shadow-sm px-4 py-2 font-semibold transition-all duration-200"
+                asChild
+              >
+                <Link href="/panier">Panier</Link>
+              </Button>
+              <CartQuantityBadge />
+            </div>
 
             <button
               className="md:hidden flex items-center justify-center p-2 rounded-full hover:bg-[#F7E0D8]/80 transition-colors focus:outline-none"

@@ -1,30 +1,39 @@
-import type React from "react"
-import type { Metadata } from "next"
-import { Inter, Playfair_Display } from "next/font/google"
-import "./globals.css"
+import type { Metadata, Viewport } from "next"; // Import Viewport
+import { Inter, Playfair_Display } from "next/font/google";
+import "./globals.css";
 
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-sans",
-})
+});
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
   variable: "--font-serif",
-})
+});
 
+// The new Viewport export
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#C9A74D" },
+    { media: "(prefers-color-scheme: dark)", color: "#C9A74D" },
+  ],
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
+
+// The corrected Metadata export (without themeColor)
 export const metadata: Metadata = {
-  metadataBase: new URL("https://xn--coconprcieux-heb.fr/"), 
+  metadataBase: new URL("https://cocon-precieux.fr"), // Using the non-punycode version for consistency
   title: "Cocon Précieux - Soins Naturels & Cosmétiques Bio Made in France",
   description:
     "Découvrez Le Baume Précieux, un soin multi-usage naturel aux 8 ingrédients essentiels. 100% végan, 97% naturel, fabriqué en France. Hydrate, apaise et sublime votre peau.",
   keywords:
     "cosmétiques naturels, baume multi-usage, soins bio, made in France, végan, peau sensible, hydratation naturelle",
   authors: [{ name: "Cocon Précieux" }],
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#C9A74D" }, 
-    { media: "(prefers-color-scheme: dark)", color: "#C9A74D" },  
-  ],
+  // themeColor has been moved to the viewport export
   creator: "Cocon Précieux",
   publisher: "Cocon Précieux",
   robots: "index, follow",
@@ -49,7 +58,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Cocon Précieux - Soins Naturels Bio",
     description: "Un soin qui apaise, un geste d'amour pour la peau",
-    images: ["/og-image.jpg"], // also resolves correctly
+    images: ["/og-image.jpg"],
   },
   alternates: {
     canonical: "https://cocon-precieux.fr",
@@ -61,16 +70,21 @@ export const metadata: Metadata = {
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
     <html lang="fr" className={`${inter.variable} ${playfair.variable}`}>
+      {/* The <head> tag here is not needed. 
+        Next.js will automatically populate the head with your metadata exports.
+        We remove the manual meta tags and structured data scripts from here.
+        The favicon can also be handled by Next.js by placing favicon.ico in the /app directory.
+      */}
       <head>
-        <link rel="icon" href="/favicon.ico" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-        <meta name="theme-color" content="#C9A74D" />
+        {/* These manual meta tags are now handled by the `viewport` export and should be removed */}
+        {/* <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" /> */}
+        {/* <meta name="theme-color" content="#C9A74D" /> */}
 
-        {/* Structured Data for SEO */}
+        {/* Structured Data for SEO - This part is fine to keep */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -123,5 +137,5 @@ export default function RootLayout({
       </head>
       <body className="font-sans antialiased">{children}</body>
     </html>
-  )
+  );
 }

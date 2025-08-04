@@ -48,7 +48,7 @@ export const metadata: Metadata = {
       "Un soin qui apaise, un geste d'amour pour la peau. Découvrez nos cosmétiques naturels fabriqués avec amour en France.",
     images: [
       {
-        url: "/image1.jpg",
+        url: "/image1.webp",
         width: 1200,
         height: 630,
         alt: "Cocon Précieux - Le Baume Précieux",

@@ -47,11 +47,12 @@ export default function HomePage() {
   {/* Sur mobile: en haut (order-1) | Sur desktop: à droite (lg:order-2) */}
   <div className="relative w-full lg:w-1/2 h-[45vh] lg:h-[90vh] order-1 lg:order-2">
     <Image
-      src="/produit%20principale.jpg"
+      src="/produit.webp"
       alt="Le baume précieux dans son environnement"
       fill
-      className="object-cover object-center" // object-center est souvent un meilleur choix
+      className="object-cover object-center"
       priority
+      sizes="(max-width: 1024px) 100vw, 50vw"
     />
   </div>
 
@@ -236,10 +237,12 @@ export default function HomePage() {
                 className="relative aspect-square"
               >
                 <Image
-                  src="/image2.jpg"
+                  src="/image2.webp"
                   alt="Fabrication artisanale du baume précieux"
                   fill
                   className="rounded-2xl shadow-lg object-cover"
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  loading="lazy"
                 />
               </motion.div>
             </div>

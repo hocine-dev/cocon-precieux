@@ -44,10 +44,10 @@ export default function ProductPage() {
   const [alreadyInCart, setAlreadyInCart] = useState(false)
 
   const productImages = [
-    "/produit%20principale.jpg?height=500&width=500",
-    "/image1.jpg?height=500&width=500",
-    "/image2.jpg?height=500&width=500",
-    "/image2.jpg?height=500&width=500",
+    "/produit.webp",
+    "/image1.webp",
+    "/image2.webp",
+    "/image2.webp",
   ]
 
   const ingredients = [
@@ -115,7 +115,7 @@ export default function ProductPage() {
       id: "baume-precieux",
       name: "Le Baume Précieux",
       price: 25,
-      image: "/produit%20principale.jpg?height=500&width=500",
+      image: "/produit.webp",
       quantity,
     };
     let cart: CartItem[] = [];
@@ -191,6 +191,7 @@ export default function ProductPage() {
                 fill
                 className="object-cover"
                 priority
+                sizes="(max-width: 1024px) 100vw, 50vw"
               />
               <Badge className="absolute top-4 left-4 bg-[#C9A74D] text-white">
                 <Zap className="w-3 h-3 mr-1" />
@@ -207,7 +208,7 @@ export default function ProductPage() {
                     selectedImage === index ? "border-[#C9A74D] scale-105" : "border-transparent hover:border-[#E6D2B5]"
                   }`}
                 >
-                  <Image src={image || "/placeholder.svg"} alt={`Vue ${index + 1}`} fill className="object-cover" />
+                  <Image src={image || "/placeholder.svg"} alt={`Vue ${index + 1}`} fill className="object-cover" loading="lazy" sizes="96px" />
                 </button>
               ))}
             </div>

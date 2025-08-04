@@ -80,7 +80,7 @@ export default function PaiementPage() {
   if (cart.length === 0) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-[#FDFBF6]">
-        <Image src="/logo.png" alt="Panier vide" width={80} height={80} className="mb-6 opacity-80" />
+        <Image src="/logo.png" alt="Panier vide" width={80} height={80} className="mb-6 opacity-80" loading="lazy" />
         <p className="text-gray-600 text-lg mb-4">Votre panier est vide.</p>
         <Button asChild className="bg-[#C9A74D] text-white rounded-full px-8 py-4">
           <Link href="/produit">Découvrir le baume</Link>
@@ -114,7 +114,7 @@ export default function PaiementPage() {
           </div>
           <div className="flex-1 flex justify-center">
             <Link href="/">
-              <Image src="/logo.png" alt="Cocon Précieux Logo" width={48} height={48} className="object-contain h-10 w-auto md:h-12" priority />
+              <Image src="/logo.png" alt="Cocon Précieux Logo" width={48} height={48} className="object-contain h-10 w-auto md:h-12" priority sizes="48px" />
             </Link>
           </div>
           <div className="flex-1" />

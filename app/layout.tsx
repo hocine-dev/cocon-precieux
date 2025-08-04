@@ -130,6 +130,42 @@ export default function RootLayout({
                 price: "25",
                 priceCurrency: "EUR",
                 availability: "https://schema.org/InStock",
+                priceValidUntil: "2026-12-31",
+                shippingDetails: {
+                  "@type": "OfferShippingDetails",
+                  shippingRate: {
+                    "@type": "MonetaryAmount",
+                    value: "5.25",
+                    currency: "EUR"
+                  },
+                  shippingDestination: {
+                    "@type": "DefinedRegion",
+                    addressCountry: "FR"
+                  },
+                  deliveryTime: {
+                    "@type": "ShippingDeliveryTime",
+                    handlingTime: {
+                      "@type": "QuantitativeValue",
+                      minValue: 1,
+                      maxValue: 2,
+                      unitCode: "d"
+                    },
+                    transitTime: {
+                      "@type": "QuantitativeValue",
+                      minValue: 2,
+                      maxValue: 4,
+                      unitCode: "d"
+                    }
+                  }
+                },
+                hasMerchantReturnPolicy: {
+                  "@type": "MerchantReturnPolicy",
+                  applicableCountry: "FR",
+                  returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
+                  merchantReturnDays: 14,
+                  returnMethod: "https://schema.org/ReturnByMail",
+                  returnFees: "https://schema.org/FreeReturn"
+                },
                 seller: {
                   "@type": "Organization",
                   name: "Cocon Précieux",
@@ -145,7 +181,6 @@ export default function RootLayout({
                 "https://cocon-precieux.fr/logo.png"
               ],
               sku: "CP-BAUME-001",
-              gtin13: "1234567890123",
               url: "https://cocon-precieux.fr/produit",
               category: "Cosmétiques naturels",
               review: [

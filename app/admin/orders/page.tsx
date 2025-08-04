@@ -9,26 +9,26 @@ import { toast } from "react-hot-toast";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { CheckCircle2 } from "lucide-react";
 
-// Type d'une commande aligné sur la BDD
+// Interface mise à jour pour inclure `cart` pour la compatibilité
 interface Order {
-  _id: string; // Utilisation exclusive de _id de MongoDB
+  _id: string;
   nom: string;
   prenom: string;
   telephone: string;
   adresse: string;
   email: string;
   items: { name: string; quantity: number; price: number }[];
+  cart?: { name: string; quantity: number; price: number }[];
   total: number;
-  status: "en attente de paiement" | "payé" | "livré" | "finalisé" | "annulé";
-  createdAt?: string; // Ajout pour correspondre à la BDD
+  status: "en preparation" | "en cours de livraison" | "livré au client" | "annuler";
+  createdAt?: string;
 }
 
 const STATUS_OPTIONS = [
-  "en attente de paiement",
-  "payé",
-  "livré",
-  "finalisé",
-  "annulé",
+  "en preparation",
+  "en cours de livraison",
+  "livré au client",
+  "annuler",
 ];
 
 export default function AdminOrdersPage() {
@@ -40,20 +40,21 @@ export default function AdminOrdersPage() {
     }
     setLoading(false);
   }, []);
+
   const [orders, setOrders] = useState<Order[]>([]);
   const [isAuth, setIsAuth] = useState(false);
   const [loading, setLoading] = useState(true);
   const [statusLoading, setStatusLoading] = useState<string | null>(null);
-  const [error, setError] = useState("");
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [dateFilter, setDateFilter] = useState<string>("");
-  const [nameFilter, setNameFilter] = useState<string>(""); // utilisé pour la requête
-  const [nameInput, setNameInput] = useState<string>(""); // utilisé pour l'input
+  const [nameFilter, setNameFilter] = useState<string>("");
+  const [nameInput, setNameInput] = useState<string>("");
   const [showCancelledFinalized, setShowCancelledFinalized] = useState(false);
   const [statusChanged, setStatusChanged] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
-  const [changedOrder, setChangedOrder] = useState<{ id: string, status: string } | null>(null);
+  // Le type de changedOrder inclut maintenant une `action` optionnelle
+  const [changedOrder, setChangedOrder] = useState<{ id: string, status: string, action?: string } | null>(null);
   const [redirecting, setRedirecting] = useState(false);
 
   const router = useRouter();
@@ -73,12 +74,9 @@ export default function AdminOrdersPage() {
     if (isAuth) {
       setLoading(true);
       let url = `/api/orders?page=${page}&limit=10`;
-      if (dateFilter) {
-        url += `&day=${dateFilter}`;
-      }
-      if (nameFilter) {
-        url += `&name=${encodeURIComponent(nameFilter)}`;
-      }
+      if (dateFilter) url += `&day=${dateFilter}`;
+      if (nameFilter) url += `&name=${encodeURIComponent(nameFilter)}`;
+      
       fetch(url)
         .then(res => res.json())
         .then(data => {
@@ -91,6 +89,14 @@ export default function AdminOrdersPage() {
     }
   }, [isAuth, page, dateFilter, nameFilter]);
 
+  // Redirection si non authentifié
+  useEffect(() => {
+    if (!loading && !isAuth) {
+      setRedirecting(true);
+      router.replace('/admin/login');
+    }
+  }, [loading, isAuth, router]);
+
   function handleLogout() {
     Cookies.remove('admin_token');
     setIsAuth(false);
@@ -102,38 +108,61 @@ export default function AdminOrdersPage() {
       const res = await fetch('/api/orders', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: orderId, status }), // L'API attend 'id', on envoie _id
+        body: JSON.stringify({ id: orderId, status }),
       });
       if (!res.ok) throw new Error('Erreur lors de la mise à jour');
       
-      setOrders((prev) =>
-        prev.map((order) =>
-          order._id === orderId ? { ...order, status } : order
-        )
-      );
+      setOrders(prev => prev.map(order => order._id === orderId ? { ...order, status } : order));
       
       setStatusChanged(orderId);
+      // Ouvre la modale pour un changement de statut
       setChangedOrder({ id: orderId, status });
       setShowModal(true);
     } catch (e) {
-      alert('Erreur lors de la mise à jour du statut');
+      toast.error('Erreur lors de la mise à jour du statut');
     } finally {
       setStatusLoading(null);
     }
   }
+  
+  // **FONCTION MODIFIÉE**
+  async function informerClient(order: Order) {
+    const toastId = toast.loading("Envoi de l'email...");
+    try {
+      const body = `Bonjour ${order.prenom},\n\nVotre commande est maintenant au statut : ${order.status}.`;
+      const payload = {
+        to: order.email,
+        subject: `Mise à jour de votre commande Cocon Précieux`,
+        body,
+        order: { ...order, cart: order.cart || order.items }
+      };
 
-  async function handleLogin(e: React.FormEvent) {
-    e.preventDefault();
-    // La logique de login est externe à ce composant et reste inchangée
-  }
+      const res = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
 
-  // Redirection si non authentifié
-  useEffect(() => {
-    if (!loading && !isAuth) {
-      setRedirecting(true);
-      router.replace('/admin/login');
+      toast.dismiss(toastId);
+
+      if (res.status === 409) {
+        setChangedOrder({ id: order._id, status: order.status, action: 'already_sent' });
+        setShowModal(true);
+        return;
+      }
+
+      const data = await res.json();
+      if (data.success) {
+        setChangedOrder({ id: order._id, status: order.status, action: 'informer' });
+        setShowModal(true);
+      } else {
+        toast.error(data.error || "Erreur lors de l'envoi de l'email");
+      }
+    } catch(error) {
+      toast.dismiss(toastId);
+      toast.error("Une erreur réseau est survenue.");
     }
-  }, [loading, isAuth, router]);
+  }
 
   if (loading || (!isAuth && !redirecting)) {
     return (
@@ -152,20 +181,36 @@ export default function AdminOrdersPage() {
 
   return (
     <div className="min-h-screen bg-[#FDFBF6] p-4">
-      {/* La modale est maintenant séparée du contenu principal de la page */}
-      <Dialog open={showModal} onOpenChange={setShowModal}>
+      {/* **MODALE MISE À JOUR** pour gérer les deux cas */}
+      <Dialog open={showModal} onOpenChange={(open) => { if (!open) setChangedOrder(null); setShowModal(open); }}>
         <DialogContent className="max-w-xs mx-auto rounded-2xl bg-[#FDFBF6] border-0 shadow-xl p-0">
           <div className="flex flex-col items-center justify-center py-8 px-4">
             <div className="rounded-full bg-green-100 p-4 mb-3">
               <CheckCircle2 className="w-16 h-16 text-[#4BB543]" />
             </div>
-            <DialogTitle className="text-[#4BB543] text-xl font-bold text-center mb-2">Statut modifié !</DialogTitle>
+            <DialogTitle className="text-[#4BB543] text-xl font-bold text-center mb-2">
+              {changedOrder?.action === 'informer'
+                ? 'Client informé !'
+                : changedOrder?.action === 'already_sent'
+                  ? 'Déjà informé'
+                  : 'Statut modifié !'}
+            </DialogTitle>
             {changedOrder && (
               <>
                 <div className="mb-1 text-base text-gray-700 text-center">
                   Commande <span className="font-bold text-[#C9A74D]">{changedOrder.id ? changedOrder.id.slice(-6) : ''}</span>
                 </div>
-                <div className="mb-4 text-center">Nouveau statut : <span className="font-semibold text-[#C9A74D]">{changedOrder.status}</span></div>
+                <div className="mb-4 text-center">
+                  {changedOrder?.action === 'informer' && (
+                    <>Le client a été informé du statut : <span className="font-semibold text-[#C9A74D]">{changedOrder.status}</span></>
+                  )}
+                  {changedOrder?.action === 'already_sent' && (
+                    <>Le client a déjà été informé pour ce statut.<br /><span className="font-semibold text-[#C9A74D]">{changedOrder.status}</span></>
+                  )}
+                  {(!changedOrder?.action || changedOrder?.action === undefined) && (
+                    <>Nouveau statut : <span className="font-semibold text-[#C9A74D]">{changedOrder.status}</span></>
+                  )}
+                </div>
               </>
             )}
             <Button onClick={() => setShowModal(false)} className="w-full bg-[#C9A74D] text-white rounded-full py-3 mt-2 text-lg shadow hover:bg-[#b8963b] transition">OK</Button>
@@ -182,11 +227,7 @@ export default function AdminOrdersPage() {
 
         <div className="flex flex-col sm:flex-row gap-2 items-center mb-4">
           <form
-            onSubmit={e => {
-              e.preventDefault();
-              setNameFilter(nameInput);
-              setPage(1);
-            }}
+            onSubmit={e => { e.preventDefault(); setNameFilter(nameInput); setPage(1); }}
             className="flex gap-2 items-center"
             style={{ flex: 1 }}
           >
@@ -212,7 +253,11 @@ export default function AdminOrdersPage() {
           <Button onClick={() => { setDateFilter(""); setNameFilter(""); setNameInput(""); setShowCancelledFinalized(false); setPage(1); }} variant="outline" className="ml-2">Réinitialiser</Button>
         </div>
 
-        {filteredOrders.length === 0 ? (
+        {loading ? (
+           <div className="flex flex-col items-center justify-center py-8">
+             <span className="block w-10 h-10 border-4 border-[#C9A74D] border-t-transparent rounded-full animate-spin"></span>
+           </div>
+        ) : filteredOrders.length === 0 ? (
           <p className="text-center text-gray-600 py-8">Aucune commande ne correspond à vos critères.</p>
         ) : (
           <div className="space-y-6">
@@ -245,7 +290,7 @@ export default function AdminOrdersPage() {
                       className="ml-2 bg-[#C9A74D] text-white rounded-full px-3 py-1 text-xs hover:bg-[#b8963b]"
                       onClick={() => informerClient(order)}
                     >
-                      Informer client
+                      Informer le client
                     </Button>
                   </div>
                 </div>
@@ -259,7 +304,7 @@ export default function AdminOrdersPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {(order.cart && order.cart.length > 0 ? order.cart : order.items).map((item, idx) => (
+                      {(order.cart || order.items).map((item, idx) => (
                         <tr key={idx}>
                           <td className="p-1">{item.name}</td>
                           <td className="p-1 text-center">{item.quantity}</td>
@@ -289,25 +334,4 @@ export default function AdminOrdersPage() {
       </div>
     </div>
   );
-
-  async function informerClient(order: Order) {
-    const body = `Bonjour ${order.prenom},\n\nVotre commande est maintenant au statut : ${order.status}.\n\nVous pouvez suivre l'évolution de votre commande à tout moment sur le site.`;
-    const payload = {
-      to: order.email,
-      subject: `Mise à jour de votre commande Cocon Précieux`,
-      body,
-      order: {
-        ...order,
-        cart: order.cart || order.items // compatibilité
-      }
-    };
-    const res = await fetch('/api/send-email', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-    const data = await res.json();
-    if (data.success) toast.success('Email envoyé au client !');
-    else toast.error(data.error || "Erreur lors de l'envoi de l'email");
-  }
 }

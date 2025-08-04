@@ -29,14 +29,15 @@ export async function POST(req: NextRequest) {
     if (!to || !subject || !body || !order) {
       return NextResponse.json({ success: false, error: "Missing required fields" }, { status: 400 });
     }
-    // Vérifier si l'email a déjà été envoyé (champ emailSent dans la commande)
+    // Vérifier si un email a déjà été envoyé pour ce statut
     const clientPromise = (await import('@/lib/mongodb')).default;
     const { ObjectId } = await import('mongodb');
     const client = await clientPromise;
     const db = client.db();
     const orderDoc = await db.collection('orders').findOne({ _id: new ObjectId(order._id) });
-    if (orderDoc && orderDoc.emailSent) {
-      return NextResponse.json({ success: false, error: "Email déjà envoyé pour cette commande." }, { status: 409 });
+    const status = order.status;
+    if (orderDoc && Array.isArray(orderDoc.emailSentStatuses) && orderDoc.emailSentStatuses.includes(status)) {
+      return NextResponse.json({ success: false, error: "Email déjà envoyé pour ce statut." }, { status: 409 });
     }
     // Afficher le message personnalisé (body) en haut du mail, avant le résumé de commande, sans texte d'accueil supplémentaire
     const suiviUrl = `https://${req.headers.get("host") || "xn--coconprcieux-heb.fr"}/commande?id=${order._id}`;
@@ -66,9 +67,6 @@ export async function POST(req: NextRequest) {
                   <span>Total</span>
                   <span style="margin-left:18px;">${order.total} €</span>
                 </div>
-                <div style="margin-top:8px;font-size:1rem;color:#555;">
-                  <b>Statut :</b> <span style='color:#C9A74D;'>En préparation</span>
-                </div>
               </div>
               <div style="font-size:0.95rem;color:#888;margin-top:24px;">L'équipe <b style='color:#C9A74D;'>Cocon Précieux</b><br><a href='https://xn--coconprcieux-heb.fr/' style='color:#C9A74D;text-decoration:none;'>coconprecieux.fr</a></div>
             </td>
@@ -84,10 +82,10 @@ export async function POST(req: NextRequest) {
       html
     };
     await transporter.sendMail(mailOptions);
-    // Marquer la commande comme email envoyé
+    // Ajouter le statut courant à emailSentStatuses (créé si absent)
     await db.collection('orders').updateOne(
       { _id: new ObjectId(order._id) },
-      { $set: { emailSent: true } }
+      { $addToSet: { emailSentStatuses: status } }
     );
     return NextResponse.json({ success: true });
   } catch (e: any) {

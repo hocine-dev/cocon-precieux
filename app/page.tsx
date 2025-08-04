@@ -34,7 +34,7 @@ const staggerContainer = {
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-[#FDFBF6]">
+    <div className="min-h-screen bg-[#FAF6ED]">
       {/* Header modernisé */}
       <Header />
 
@@ -68,7 +68,7 @@ export default function HomePage() {
       <h1 className="text-4xl md:text-6xl lg:text-7xl font-serif text-gray-800 mb-6 leading-tight">
         Un soin qui apaise,
         <br />
-        <span className="text-[#C9A74D]">un geste d'amour</span>
+        <span className="text-[#A07C2C]">un geste d'amour</span>
         <br />
         pour la peau
       </h1>
@@ -81,7 +81,7 @@ export default function HomePage() {
       <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start items-center">
         <Button
           size="lg"
-          className="bg-[#C9A74D] hover:bg-[#C9A74D]/90 text-white px-8 py-6 text-lg rounded-full"
+          className="bg-[#A07C2C] hover:bg-[#C9A74D] text-white px-8 py-6 text-lg rounded-full focus:ring-2 focus:ring-[#A07C2C] focus:ring-offset-2"
           asChild
         >
           <Link href="/produit">Découvrir le baume</Link>
@@ -90,7 +90,7 @@ export default function HomePage() {
           asChild
           variant="ghost"
           size="lg"
-          className="text-[#C9A74D] hover:bg-[#F7E0D8]/50 px-8 py-6 text-lg"
+          className="text-[#A07C2C] hover:bg-[#F7E0D8]/50 px-8 py-6 text-lg focus:ring-2 focus:ring-[#A07C2C] focus:ring-offset-2"
         >
           <Link href="#story">Mon histoire</Link>
         </Button>
@@ -135,9 +135,9 @@ export default function HomePage() {
               <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-[#F7E0D8] to-[#E6D2B5] rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                 <benefit.icon className="w-8 h-8 text-[#C9A74D]" />
               </div>
-              <h3 className="font-semibold text-gray-800 mb-2">
+              <h2 className="font-semibold text-gray-800 mb-2">
                 {benefit.title}
-              </h3>
+              </h2>
               <p className="text-sm text-gray-600">{benefit.desc}</p>
             </motion.div>
           ))}
@@ -215,9 +215,9 @@ export default function HomePage() {
                 </p>
 
                 <div className="bg-gradient-to-r from-[#F7E0D8]/30 to-[#E6D2B5]/20 rounded-2xl p-6">
-                  <h4 className="font-serif text-xl text-[#C9A74D] mb-3">
+                  <h3 className="font-serif text-xl text-[#C9A74D] mb-3">
                     Ce qui rend Cocon Précieux unique ?
-                  </h4>
+                  </h3>
                   <p className="text-gray-700 leading-relaxed mb-3">
                     Un soin qui ne fait pas que nourrir... Il réconforte, il
                     apaise, il célèbre la beauté simple.
@@ -302,9 +302,9 @@ export default function HomePage() {
                       <div className="w-12 h-12 bg-gradient-to-br from-[#C9A74D] to-[#D9C1A3] rounded-full flex items-center justify-center flex-shrink-0">
                         <value.icon className="w-6 h-6 text-white" />
                       </div>
-                      <h3 className="font-semibold text-[#C9A74D] text-xl">
+                      <h2 className="font-semibold text-[#C9A74D] text-xl">
                         {value.title}
-                      </h3>
+                      </h2>
                     </div>
                     <p className="text-gray-600 leading-relaxed">
                       {value.desc}
@@ -407,20 +407,20 @@ export default function HomePage() {
             </p>
 
             <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 mb-8 max-w-sm mx-auto">
-              <div className="text-4xl font-bold text-white mb-2">
+              <div className="text-4xl font-bold text-[#FFF] mb-2 drop-shadow">
                 25€{" "}
-                <span className="text-base font-normal">
+                <span className="text-base font-normal text-[#F7E0D8]">
                   (hors frais de livraison)
                 </span>
               </div>
-              <p className="text-white/90 text-sm">
+              <p className="text-[#F7E0D8] text-sm">
                 Livraison : 5,25€ pour 1 colis (max 250g)
               </p>
             </div>
 
             <Button
               size="lg"
-              className="bg-white text-[#C9A74D] hover:bg-gray-100 px-10 py-7 text-lg rounded-full"
+              className="bg-white text-[#A07C2C] hover:bg-gray-100 px-10 py-7 text-lg rounded-full focus:ring-2 focus:ring-[#A07C2C] focus:ring-offset-2"
               asChild
             >
               <Link href="/produit">Commander mon baume</Link>

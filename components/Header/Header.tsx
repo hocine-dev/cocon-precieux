@@ -83,7 +83,7 @@ export function Header() {
             <div className="relative">
               <Button
                 variant="outline"
-                className="border-[#C9A74D] text-[#C9A74D] hover:bg-[#C9A74D] hover:text-white bg-transparent rounded-xl shadow-sm px-4 py-2 font-semibold transition-all duration-200"
+                className="border-[#A07C2C] text-[#A07C2C] hover:bg-[#A07C2C] hover:text-white bg-transparent rounded-xl shadow-sm px-4 py-2 font-semibold transition-all duration-200 focus:ring-2 focus:ring-[#A07C2C] focus:ring-offset-2"
                 asChild
               >
                 <Link href="/panier">Panier</Link>

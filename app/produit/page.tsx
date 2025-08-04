@@ -40,6 +40,8 @@ const fadeInUp = {
 export default function ProductPage() {
   const [quantity, setQuantity] = useState(1)
   const [selectedImage, setSelectedImage] = useState(0)
+  const [showNotice, setShowNotice] = useState(false)
+  const [alreadyInCart, setAlreadyInCart] = useState(false)
 
   const productImages = [
     "/produit%20principale.jpg?height=500&width=500",
@@ -49,14 +51,14 @@ export default function ProductPage() {
   ]
 
   const ingredients = [
-    "Beurre de Karité Bio",
-    "Huile de Coco Vierge",
-    "Cire d'Abeille",
-    "Huile d'Amande Douce",
-    "Vitamine E Naturelle",
-    "Huile Essentielle de Lavande",
-    "Extrait de Calendula",
-    "Huile de Jojoba Bio",
+    "Huile végétale d'abricot",
+    "Huile de Jojoba",
+    "Cire de Candelilla",
+    "Beurre de Karité",
+    "Huile végétale de Tournesol",
+    "Anti-oxydant naturel",
+    "Parfum",
+    "Vaniline",
   ]
 
   const usages = [
@@ -76,13 +78,39 @@ export default function ProductPage() {
   // Met à jour la quantité du panier au chargement et après ajout
   useEffect(() => {
     setCartQty(getCartQuantity());
+    // Vérifie si le produit est déjà dans le panier
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem(CART_KEY);
+      if (stored) {
+        const cart = JSON.parse(stored);
+        setAlreadyInCart(cart.some((item: CartItem) => item.id === "baume-precieux"));
+      } else {
+        setAlreadyInCart(false);
+      }
+    }
     // Ecoute le stockage local pour MAJ si modifié ailleurs
-    const handler = () => setCartQty(getCartQuantity());
+    const handler = () => {
+      setCartQty(getCartQuantity());
+      if (typeof window !== "undefined") {
+        const stored = localStorage.getItem(CART_KEY);
+        if (stored) {
+          const cart = JSON.parse(stored);
+          setAlreadyInCart(cart.some((item: CartItem) => item.id === "baume-precieux"));
+        } else {
+          setAlreadyInCart(false);
+        }
+      }
+    };
     window.addEventListener("storage", handler);
     return () => window.removeEventListener("storage", handler);
   }, []);
 
   const handleAddToCart = () => {
+    if (alreadyInCart) {
+      setShowNotice(true);
+      setAdded(false);
+      return;
+    }
     const item: CartItem = {
       id: "baume-precieux",
       name: "Le Baume Précieux",
@@ -94,17 +122,11 @@ export default function ProductPage() {
     if (typeof window !== "undefined") {
       const stored = localStorage.getItem(CART_KEY);
       if (stored) cart = JSON.parse(stored);
-      const existing = cart.find((i) => i.id === item.id);
-      if (existing) {
-        cart = cart.map((i) =>
-          i.id === item.id ? { ...i, quantity: i.quantity + quantity } : i
-        );
-      } else {
-        cart.push(item);
-      }
+      cart.push(item);
       localStorage.setItem(CART_KEY, JSON.stringify(cart));
       setAdded(true);
       setCartQty(getCartQuantity());
+      setAlreadyInCart(true);
       setTimeout(() => setAdded(false), 1500);
     }
   };
@@ -245,23 +267,30 @@ export default function ProductPage() {
            
 
             {/* Quantity */}
-            <div className="flex items-center space-x-4">
-              <span className="text-sm font-medium text-gray-700">Quantité:</span>
-              <div className="flex items-center border border-[#E6D2B5] rounded-lg">
-                <button
-                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="p-2 hover:bg-[#F7E0D8]/50 transition-colors"
-                >
-                  <Minus className="w-4 h-4" />
-                </button>
-                <span className="px-4 py-2 min-w-[3rem] text-center">{quantity}</span>
-                <button
-                  onClick={() => setQuantity(quantity + 1)}
-                  className="p-2 hover:bg-[#F7E0D8]/50 transition-colors"
-                >
-                  <Plus className="w-4 h-4" />
-                </button>
+            <div className="flex flex-col gap-1 items-start">
+              <div className="flex items-center space-x-4">
+                <span className="text-sm font-medium text-gray-700">Quantité:</span>
+                <div className="flex items-center border border-[#E6D2B5] rounded-lg">
+                  <button
+                    onClick={() => setQuantity(1)}
+                    className="p-2 hover:bg-[#F7E0D8]/50 transition-colors"
+                    disabled={quantity === 1}
+                  >
+                    <Minus className="w-4 h-4" />
+                  </button>
+                  <span className="px-4 py-2 min-w-[3rem] text-center">{quantity}</span>
+                  <button
+                    onClick={() => { setQuantity(1); setShowNotice(true); }}
+                    className="p-2 hover:bg-[#F7E0D8]/50 transition-colors"
+                   
+                  >
+                    <Plus className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
+              {showNotice && (
+                <span className="text-xs text-[#C9A74D] mt-1">(Temporairement, le nombre de Baume est limité à 1 unité par personne)</span>
+              )}
             </div>
 
             {/* CTA Button */}
@@ -270,9 +299,9 @@ export default function ProductPage() {
                 size="lg"
                 className="w-full bg-[#C9A74D] hover:bg-[#C9A74D]/90 text-white py-6 text-lg rounded-full transition"
                 onClick={handleAddToCart}
-                disabled={added}
+                disabled={added || alreadyInCart}
               >
-                {added ? "Ajouté au panier !" : `Ajouter au panier - ${25 * quantity}€`}
+                {alreadyInCart ? "Déjà dans le panier" : added ? "Ajouté au panier !" : `Ajouter au panier - ${25 * quantity}€`}
               </Button>
               <Button
                 asChild

@@ -18,7 +18,7 @@ interface CartItem {
 }
 
 const CART_KEY = "cocon_precieux_cart";
-const IBAN = "FR00000000"; // IBAN de démonstration
+// Stripe Checkout, plus d'IBAN
 
 export default function PaiementPage() {
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -54,49 +54,23 @@ export default function PaiementPage() {
     setForm({ ...form, [e.target.name]: e.target.value });
   }
 
-async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const order = {
-      nom: form.nom,
-      prenom: form.prenom,
-      telephone: form.telephone,
-      adresse: form.adresse,
-      email: form.email,
-      items: cart.map(item => ({ name: item.name, quantity: item.quantity, price: item.price })),
-      total: Number((total + 5.25).toFixed(2)),
-      status: "en attente de paiement",
-    };
+    // Appel Stripe Checkout
     try {
-      const res = await fetch("/api/orders", {
+      const res = await fetch("/api/stripe/checkout-session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(order),
+        body: JSON.stringify({ cart, ...form }),
       });
-      if (!res.ok) throw new Error("Erreur lors de l'enregistrement de la commande");
+      if (!res.ok) throw new Error("Erreur lors de la création de la session de paiement");
       const data = await res.json();
-      // Vider le panier localStorage et state
-      if (typeof window !== "undefined") {
-        localStorage.removeItem(CART_KEY);
-      }
-      setCart([]);
-      // Rediriger vers la page confirmation avec l'id
-      if (data.id) {
-        router.push(`/confirmation?id=${data.id}`);
-      } else {
-        router.push(`/confirmation`);
+      if (data.url) {
+        window.location.href = data.url;
       }
     } catch (err) {
-      alert("Erreur lors de l'enregistrement de la commande. Veuillez réessayer.");
+      alert("Erreur lors de la commande : " + (err as any).message);
     }
-  }
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-[#FDFBF6]">
-        <span className="block w-12 h-12 border-4 border-[#C9A74D] border-t-transparent rounded-full animate-spin mb-6"></span>
-        <p className="text-gray-600 text-lg mb-4">Chargement du panier...</p>
-      </div>
-    );
   }
 
   if (cart.length === 0) {
@@ -186,9 +160,9 @@ async function handleSubmit(e: React.FormEvent) {
             <label className="block text-gray-700 mb-1" htmlFor="email">Email</label>
             <input required type="email" name="email" id="email" className="w-full border border-[#E6D2B5] rounded px-3 py-2" value={form.email} onChange={handleChange} />
           </div>
-          <Button type="submit" className="w-full bg-[#C9A74D] text-white py-4 rounded-full text-lg shadow-lg hover:bg-[#C9A74D]/90 transition">Valider et obtenir l'IBAN</Button>
+          <Button type="submit" className="w-full bg-[#C9A74D] text-white py-4 rounded-full text-lg shadow-lg hover:bg-[#C9A74D]/90 transition">Valider et payer par carte</Button>
         </form>
-        <p className="text-xs text-gray-500 text-center mt-4">Après validation, vous recevrez l'IBAN pour effectuer le virement bancaire.</p>
+        <p className="text-xs text-gray-500 text-center mt-4">Après validation, vous serez redirigé vers le paiement sécurisé par carte bancaire.</p>
       </main>
     </div>
   );

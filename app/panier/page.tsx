@@ -8,6 +8,7 @@ import { Minus, Plus, Trash2, ShoppingCart, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
+// import { useToast } from "@/components/ui/use-toast";
 // Type for a cart item
 interface CartItem {
   id: string;
@@ -20,8 +21,10 @@ interface CartItem {
 const CART_KEY = "cocon_precieux_cart";
 
 export default function CartPage() {
-  const [cart, setCart] = useState<CartItem[]>([]);
+    const [cart, setCart] = useState<CartItem[]>([]);
+    const [showAlert, setShowAlert] = useState(false);
   const [loading, setLoading] = useState(true);
+    // const { toast } = useToast();
 
   // Charge le panier depuis le localStorage à chaque affichage et sur modification externe
   useEffect(() => {
@@ -42,12 +45,14 @@ export default function CartPage() {
     return () => window.removeEventListener("storage", handler);
   }, []);
 
+  // Plus besoin de gérer showNotice
+
   // Met à jour le localStorage et le state lors des actions utilisateur
   const updateQuantity = (id: string, delta: number) => {
     setCart((prev) => {
       const updated = prev.map((item) =>
         item.id === id
-          ? { ...item, quantity: Math.max(1, item.quantity + delta) }
+          ? { ...item, quantity: 1 } // Toujours 1
           : item
       );
       localStorage.setItem(CART_KEY, JSON.stringify(updated));
@@ -69,6 +74,8 @@ export default function CartPage() {
   };
 
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const livraison = 5.25;
+  const totalAvecLivraison = (total + livraison).toFixed(2);
 
   return (
     <div className="min-h-screen bg-[#FDFBF6] flex flex-col">
@@ -127,6 +134,12 @@ export default function CartPage() {
           </div>
         ) : (
           <div className="space-y-6">
+            {showAlert && (
+              <div className="fixed top-4 left-1/2 z-50 -translate-x-1/2 bg-[#C9A74D] text-white px-6 py-3 rounded-xl shadow-lg flex items-center gap-2 animate-fade-in">
+                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z" /></svg>
+                <span>Temporairement, le nombre de Baume est limité à 1 unité par personne.</span>
+              </div>
+            )}
             {cart.map((item) => (
               <Card key={item.id} className="flex flex-col sm:flex-row items-center gap-4 p-4 bg-white/80 border-0 shadow-md rounded-2xl">
                 <div className="relative w-24 h-24 flex-shrink-0 rounded-xl overflow-hidden bg-gradient-to-br from-[#F7E0D8]/30 to-[#E6D2B5]/20">
@@ -144,11 +157,20 @@ export default function CartPage() {
                     <Badge className="bg-[#F7E0D8] text-[#C9A74D]">x{item.quantity}</Badge>
                   </div>
                   <div className="flex items-center gap-2 mt-2">
-                    <Button size="icon" variant="outline" className="border-[#C9A74D] text-[#C9A74D]" onClick={() => updateQuantity(item.id, -1)}>
+                    <Button size="icon" variant="outline" className="border-[#C9A74D] text-[#C9A74D]" disabled>
                       <Minus className="w-4 h-4" />
                     </Button>
-                    <span className="px-3 text-gray-700 font-medium">{item.quantity}</span>
-                    <Button size="icon" variant="outline" className="border-[#C9A74D] text-[#C9A74D]" onClick={() => updateQuantity(item.id, 1)}>
+                    <span className="px-3 text-gray-700 font-medium">1</span>
+                    <Button
+                      size="icon"
+                      variant="outline"
+                      className="border-[#C9A74D] text-[#C9A74D]"
+                      disabled
+                      onClick={() => {
+                        setShowAlert(true);
+                        setTimeout(() => setShowAlert(false), 3000);
+                      }}
+                    >
                       <Plus className="w-4 h-4" />
                     </Button>
                   </div>
@@ -156,16 +178,23 @@ export default function CartPage() {
               </Card>
             ))}
 
-            {/* Total */}
+            {/* Total avec livraison */}
             <div className="flex flex-col gap-4 mt-8">
               <div className="flex items-center justify-between text-lg font-semibold text-gray-800">
-                <span>Total</span>
+                <span>Sous-total</span>
                 <span>{total}€</span>
+              </div>
+              <div className="flex items-center justify-between text-base text-gray-700">
+                <span>Livraison</span>
+                <span>{livraison}€</span>
+              </div>
+              <div className="flex items-center justify-between text-lg font-bold text-[#C9A74D]">
+                <span>Total à payer</span>
+                <span>{totalAvecLivraison}€</span>
               </div>
               <Button asChild className="w-full bg-[#C9A74D] text-white py-4 rounded-full text-lg shadow-lg hover:bg-[#C9A74D]/90 transition">
                 <Link href="/paiement">Procéder au paiement</Link>
               </Button>
-              <p className="text-xs text-gray-500 text-center">Livraison : 5,25€ en France métropolitaine</p>
             </div>
           </div>
         )}

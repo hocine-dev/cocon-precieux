@@ -8,6 +8,7 @@ import Image from "next/image";
 import { ArrowLeft, PackageCheck, User, Mail, Phone, MapPin, BadgeCheck } from "lucide-react";
 
 export default function CommandeClient() {
+  const [emailSent, setEmailSent] = useState(false);
   const [order, setOrder] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const searchParams = useSearchParams();
@@ -18,10 +19,35 @@ export default function CommandeClient() {
     fetch(`/api/orders?id=${orderId}`)
       .then(res => res.json())
       .then(data => {
-        if (data.success && data.order) setOrder(data.order);
+        if (data.success && data.order) {
+          setOrder(data.order);
+          // Vide le panier si la commande existe
+          if (typeof window !== "undefined") {
+            localStorage.removeItem("cocon_precieux_cart");
+          }
+        }
         setLoading(false);
       });
   }, [orderId]);
+
+  // Envoi automatique de l'email de confirmation dès que la commande est chargée (peu importe le statut)
+  useEffect(() => {
+    if (!order || emailSent) return;
+    fetch('/api/send-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        to: order.email,
+        subject: 'Confirmation de votre commande Cocon Précieux',
+        body: `Bonjour ${order.prenom || ''},\n\nNous avons bien reçu votre commande !`,
+        order
+      })
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) setEmailSent(true);
+      });
+  }, [order, emailSent]);
 
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center bg-[#FDFBF6]">
@@ -65,11 +91,17 @@ export default function CommandeClient() {
             <span className="text-sm text-gray-500 mb-2">Merci pour votre confiance !</span>
           </div>
           {/* Données personnelles masquées */}
-          <div className="flex items-center gap-2 mb-4"><BadgeCheck className="w-5 h-5 text-[#C9A74D]" /><span className="font-semibold">Statut :</span> <span className="font-semibold text-[#C9A74D]">{order.status}</span></div>
+          <div className="flex items-center gap-2 mb-4">
+            <BadgeCheck className="w-5 h-5 text-[#C9A74D]" />
+            <span className="font-semibold">Statut :</span>
+            <span className="font-semibold text-[#C9A74D]">
+              {order.status === 'en attente de paiement' ? 'En préparation' : order.status}
+            </span>
+          </div>
           <div className="mb-4">
             <b>Produits commandés :</b>
             <ul className="list-disc ml-6 mt-2">
-              {order.items.map((item: any, idx: number) => (
+              {order.cart && order.cart.map((item: any, idx: number) => (
                 <li key={idx} className="flex items-center gap-2">
                   <span className="font-semibold">{item.name}</span> x{item.quantity} <span className="text-gray-500">— {item.price}€</span>
                 </li>

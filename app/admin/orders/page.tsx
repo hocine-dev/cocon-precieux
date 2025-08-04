@@ -5,6 +5,7 @@ import { format } from 'date-fns';
 import Cookies from 'js-cookie';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { toast } from "react-hot-toast";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { CheckCircle2 } from "lucide-react";
 
@@ -31,6 +32,14 @@ const STATUS_OPTIONS = [
 ];
 
 export default function AdminOrdersPage() {
+  // Vérifie le token JWT au chargement
+  useEffect(() => {
+    const token = Cookies.get('admin_token');
+    if (token) {
+      setIsAuth(true);
+    }
+    setLoading(false);
+  }, []);
   const [orders, setOrders] = useState<Order[]>([]);
   const [isAuth, setIsAuth] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -46,6 +55,7 @@ export default function AdminOrdersPage() {
   const [showModal, setShowModal] = useState(false);
   const [changedOrder, setChangedOrder] = useState<{ id: string, status: string } | null>(null);
   const [redirecting, setRedirecting] = useState(false);
+
   const router = useRouter();
 
   // Fait disparaître la surbrillance de la carte après 3 secondes
@@ -57,21 +67,6 @@ export default function AdminOrdersPage() {
       return () => clearTimeout(timer);
     }
   }, [statusChanged]);
-
-
-  function handleLogout() {
-    Cookies.remove('admin_token');
-    setIsAuth(false);
-  }
-
-  // Vérifie le token JWT au chargement
-  useEffect(() => {
-    const token = Cookies.get('admin_token');
-    if (token) {
-      setIsAuth(true);
-    }
-    setLoading(false);
-  }, []);
 
   // Fetch des commandes
   useEffect(() => {
@@ -95,6 +90,11 @@ export default function AdminOrdersPage() {
         .finally(() => setLoading(false));
     }
   }, [isAuth, page, dateFilter, nameFilter]);
+
+  function handleLogout() {
+    Cookies.remove('admin_token');
+    setIsAuth(false);
+  }
 
   async function updateStatus(orderId: string, status: Order["status"]) {
     setStatusLoading(orderId);
@@ -241,6 +241,12 @@ export default function AdminOrdersPage() {
                         <span className="absolute right-2 top-1/2 -translate-y-1/2 block w-4 h-4 border-2 border-[#C9A74D] border-t-transparent rounded-full animate-spin"></span>
                       )}
                     </div>
+                    <Button
+                      className="ml-2 bg-[#C9A74D] text-white rounded-full px-3 py-1 text-xs hover:bg-[#b8963b]"
+                      onClick={() => informerClient(order)}
+                    >
+                      Informer client
+                    </Button>
                   </div>
                 </div>
                 <div className="overflow-x-auto">
@@ -253,7 +259,7 @@ export default function AdminOrdersPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {order.items.map((item, idx) => (
+                      {(order.cart && order.cart.length > 0 ? order.cart : order.items).map((item, idx) => (
                         <tr key={idx}>
                           <td className="p-1">{item.name}</td>
                           <td className="p-1 text-center">{item.quantity}</td>
@@ -274,13 +280,34 @@ export default function AdminOrdersPage() {
         
         {/* Pagination */}
         {total > 10 && (
-            <div className="flex justify-center items-center gap-2 mt-6">
-                <Button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} variant="outline">Précédent</Button>
-                <span className="text-sm">Page {page} / {Math.ceil(total / 10) || 1}</span>
-                <Button onClick={() => setPage(p => p + 1)} disabled={page >= Math.ceil(total / 10)} variant="outline">Suivant</Button>
-            </div>
+          <div className="flex justify-center items-center gap-2 mt-6">
+            <Button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} variant="outline">Précédent</Button>
+            <span className="text-sm">Page {page} / {Math.ceil(total / 10) || 1}</span>
+            <Button onClick={() => setPage(p => p + 1)} disabled={page >= Math.ceil(total / 10)} variant="outline">Suivant</Button>
+          </div>
         )}
       </div>
     </div>
   );
+
+  async function informerClient(order: Order) {
+    const body = `Bonjour ${order.prenom},\n\nVotre commande est maintenant au statut : ${order.status}.\n\nVous pouvez suivre l'évolution de votre commande à tout moment sur le site.`;
+    const payload = {
+      to: order.email,
+      subject: `Mise à jour de votre commande Cocon Précieux`,
+      body,
+      order: {
+        ...order,
+        cart: order.cart || order.items // compatibilité
+      }
+    };
+    const res = await fetch('/api/send-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.success) toast.success('Email envoyé au client !');
+    else toast.error(data.error || "Erreur lors de l'envoi de l'email");
+  }
 }

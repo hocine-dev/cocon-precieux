@@ -83,16 +83,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="fr" className={`${inter.variable} ${playfair.variable}`}>
-      {/* The <head> tag here is not needed. 
-        Next.js will automatically populate the head with your metadata exports.
-        We remove the manual meta tags and structured data scripts from here.
-        The favicon can also be handled by Next.js by placing favicon.ico in the /app directory.
-      */}
       <head>
-        {/* These manual meta tags are now handled by the `viewport` export and should be removed */}
-        {/* <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" /> */}
-        {/* <meta name="theme-color" content="#C9A74D" /> */}
-
+        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+        <link rel="manifest" href="/site.webmanifest" />
         {/* Structured Data for SEO - This part is fine to keep */}
         <script
           type="application/ld+json"

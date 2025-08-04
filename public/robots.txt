@@ -1,6 +1,6 @@
 User-agent: *
 Disallow:
-Sitemap: https://cocon-precieux.fr/sitemap.xml
+Sitemap: https://www.cocon-precieux.fr/sitemap.xml
 Host: cocon-precieux.fr
 Googlebot: index, follow
 Googlebot-News: index, follow

@@ -31,6 +31,7 @@ export default function PaiementPage() {
     email: "",
   });
   const [submitted, setSubmitted] = useState(false);
+  const [paying, setPaying] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -56,7 +57,7 @@ export default function PaiementPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    // Appel Stripe Checkout
+    setPaying(true);
     try {
       const res = await fetch("/api/stripe/checkout-session", {
         method: "POST",
@@ -67,8 +68,11 @@ export default function PaiementPage() {
       const data = await res.json();
       if (data.url) {
         window.location.href = data.url;
+      } else {
+        setPaying(false);
       }
     } catch (err) {
+      setPaying(false);
       alert("Erreur lors de la commande : " + (err as any).message);
     }
   }
@@ -81,6 +85,15 @@ export default function PaiementPage() {
         <Button asChild className="bg-[#C9A74D] text-white rounded-full px-8 py-4">
           <Link href="/produit">Découvrir le baume</Link>
         </Button>
+      </div>
+    );
+  }
+
+  if (paying) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#FDFBF6]">
+        <span className="block w-12 h-12 border-4 border-[#C9A74D] border-t-transparent rounded-full animate-spin"></span>
+        <p className="text-gray-600 text-lg mt-4">Redirection vers le paiement sécurisé…</p>
       </div>
     );
   }
@@ -160,7 +173,16 @@ export default function PaiementPage() {
             <label className="block text-gray-700 mb-1" htmlFor="email">Email</label>
             <input required type="email" name="email" id="email" className="w-full border border-[#E6D2B5] rounded px-3 py-2" value={form.email} onChange={handleChange} />
           </div>
-          <Button type="submit" className="w-full bg-[#C9A74D] text-white py-4 rounded-full text-lg shadow-lg hover:bg-[#C9A74D]/90 transition">Valider et payer par carte</Button>
+          <Button type="submit" className="w-full bg-[#C9A74D] text-white py-4 rounded-full text-lg shadow-lg hover:bg-[#C9A74D]/90 transition" disabled={paying}>
+            {paying ? (
+              <span className="flex items-center justify-center">
+                <span className="block w-5 h-5 border-2 border-[#C9A74D] border-t-transparent rounded-full animate-spin mr-2"></span>
+                Paiement en cours…
+              </span>
+            ) : (
+              "Valider et payer par carte"
+            )}
+          </Button>
         </form>
         <p className="text-xs text-gray-500 text-center mt-4">Après validation, vous serez redirigé vers le paiement sécurisé par carte bancaire.</p>
       </main>

@@ -25,42 +25,52 @@ export const viewport: Viewport = {
 
 // The corrected Metadata export (without themeColor)
 export const metadata: Metadata = {
-  metadataBase: new URL("https://cocon-precieux.fr"), // Using the non-punycode version for consistency
-  title: "Cocon Précieux - Soins Naturels & Cosmétiques Bio Made in France",
+  metadataBase: new URL("https://cocon-precieux.fr"),
+  title: "Cocon Précieux - Baume multi-usage naturel, végan, bio, made in France",
   description:
-    "Découvrez Le Baume Précieux, un soin multi-usage naturel aux 8 ingrédients essentiels. 100% végan, 97% naturel, fabriqué en France. Hydrate, apaise et sublime votre peau.",
+    "Le Baume Précieux : soin naturel multi-usage, 100% végan, 97% naturel, fabriqué en France. Hydrate, apaise, sublime la peau. Livraison rapide.",
   keywords:
-    "cosmétiques naturels, baume multi-usage, soins bio, made in France, végan, peau sensible, hydratation naturelle",
+    "baume naturel, cosmétique bio, soin multi-usage, végan, made in France, hydratation, peau sensible, cocon précieux, baume précieux, cosmétique naturel, beauté française, livraison rapide",
   authors: [{ name: "Cocon Précieux" }],
-  // themeColor has been moved to the viewport export
   creator: "Cocon Précieux",
   publisher: "Cocon Précieux",
   robots: "index, follow",
+  alternates: {
+    canonical: "https://cocon-precieux.fr/",
+    languages: {
+      'fr': 'https://cocon-precieux.fr/',
+      'en': 'https://cocon-precieux.fr/en',
+    },
+  },
   openGraph: {
     type: "website",
     locale: "fr_FR",
-    url: "https://cocon-precieux.fr",
+    url: "https://cocon-precieux.fr/",
     siteName: "Cocon Précieux",
-    title: "Cocon Précieux - Soins Naturels & Cosmétiques Bio",
+    title: "Cocon Précieux - Baume multi-usage naturel, végan, bio, made in France",
     description:
-      "Un soin qui apaise, un geste d'amour pour la peau. Découvrez nos cosmétiques naturels fabriqués avec amour en France.",
+      "Le Baume Précieux : soin naturel multi-usage, 100% végan, 97% naturel, fabriqué en France. Hydrate, apaise, sublime la peau.",
     images: [
       {
-        url: "/image1.webp",
+        url: "https://cocon-precieux.fr/image1.webp",
         width: 1200,
         height: 630,
         alt: "Cocon Précieux - Le Baume Précieux",
+      },
+      {
+        url: "https://cocon-precieux.fr/logo.png",
+        width: 512,
+        height: 512,
+        alt: "Cocon Précieux Logo",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Cocon Précieux - Soins Naturels Bio",
-    description: "Un soin qui apaise, un geste d'amour pour la peau",
-    images: ["/og-image.jpg"],
-  },
-  alternates: {
-    canonical: "https://cocon-precieux.fr",
+    title: "Cocon Précieux - Baume multi-usage naturel, végan, bio, made in France",
+    description: "Le Baume Précieux : soin naturel multi-usage, 100% végan, 97% naturel, fabriqué en France.",
+    images: ["https://cocon-precieux.fr/image1.webp"],
+    site: "@cocon_precieux",
   },
   generator: 'Hocine Dev',
 };
@@ -130,7 +140,40 @@ export default function RootLayout({
                 ratingValue: "5",
                 reviewCount: "127",
               },
+              image: [
+                "https://cocon-precieux.fr/image1.webp",
+                "https://cocon-precieux.fr/logo.png"
+              ],
+              sku: "CP-BAUME-001",
+              gtin13: "1234567890123",
+              url: "https://cocon-precieux.fr/produit",
+              category: "Cosmétiques naturels",
+              review: [
+                {
+                  "@type": "Review",
+                  author: { "@type": "Person", name: "Marie" },
+                  reviewRating: { "@type": "Rating", ratingValue: "5" },
+                  reviewBody: "Un baume exceptionnel, ma peau est transformée !"
+                }
+              ]
             }),
+          }}
+        />
+
+        {/* WebSite structured data for Sitelinks Searchbox */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              url: "https://cocon-precieux.fr/",
+              potentialAction: {
+                "@type": "SearchAction",
+                target: "https://cocon-precieux.fr/search?q={search_term_string}",
+                "query-input": "required name=search_term_string"
+              }
+            })
           }}
         />
       </head>

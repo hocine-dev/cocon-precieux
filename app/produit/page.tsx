@@ -47,7 +47,7 @@ export default function ProductPage() {
     "/produit.webp",
     "/image1.webp",
     "/image2.webp",
-    "/image2.webp",
+    "/image3.webp",
   ]
 
   const ingredients = [

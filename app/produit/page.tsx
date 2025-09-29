@@ -42,6 +42,7 @@ export default function ProductPage() {
   const [selectedImage, setSelectedImage] = useState(0)
   const [showNotice, setShowNotice] = useState(false)
   const [alreadyInCart, setAlreadyInCart] = useState(false)
+  const [cartQuantity, setCartQuantity] = useState(0)
 
   const productImages = [
     "/produit.webp",
@@ -76,57 +77,82 @@ export default function ProductPage() {
   const [cartQty, setCartQty] = useState(0);
 
   // Met à jour la quantité du panier au chargement et après ajout
+  // Initialisation au premier rendu
   useEffect(() => {
     setCartQty(getCartQuantity());
-    // Vérifie si le produit est déjà dans le panier
     if (typeof window !== "undefined") {
       const stored = localStorage.getItem(CART_KEY);
       if (stored) {
         const cart = JSON.parse(stored);
-        setAlreadyInCart(cart.some((item: CartItem) => item.id === "baume-precieux"));
+        const found = cart.find((item: CartItem) => item.id === "baume-precieux");
+        setAlreadyInCart(!!found);
+        setCartQuantity(found ? found.quantity : 0);
+        if (found) {
+          setQuantity(found.quantity);
+        }
       } else {
         setAlreadyInCart(false);
+        setCartQuantity(0);
       }
     }
-    // Ecoute le stockage local pour MAJ si modifié ailleurs
+  }, []);
+
+  // Synchronisation si la quantité change (ex: ajout, modif)
+  useEffect(() => {
+    setCartQty(getCartQuantity());
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem(CART_KEY);
+      if (stored) {
+        const cart = JSON.parse(stored);
+        const found = cart.find((item: CartItem) => item.id === "baume-precieux");
+        setAlreadyInCart(!!found);
+        setCartQuantity(found ? found.quantity : 0);
+      } else {
+        setAlreadyInCart(false);
+        setCartQuantity(0);
+      }
+    }
     const handler = () => {
       setCartQty(getCartQuantity());
       if (typeof window !== "undefined") {
         const stored = localStorage.getItem(CART_KEY);
         if (stored) {
           const cart = JSON.parse(stored);
-          setAlreadyInCart(cart.some((item: CartItem) => item.id === "baume-precieux"));
+          const found = cart.find((item: CartItem) => item.id === "baume-precieux");
+          setAlreadyInCart(!!found);
+          setCartQuantity(found ? found.quantity : 0);
         } else {
           setAlreadyInCart(false);
+          setCartQuantity(0);
         }
       }
     };
     window.addEventListener("storage", handler);
     return () => window.removeEventListener("storage", handler);
-  }, []);
+  }, [quantity]);
 
   const handleAddToCart = () => {
-    if (alreadyInCart) {
-      setShowNotice(true);
-      setAdded(false);
-      return;
-    }
-    const item: CartItem = {
-      id: "baume-precieux",
-      name: "Le Baume Précieux",
-      price: 25,
-      image: "/produit.webp",
-      quantity,
-    };
     let cart: CartItem[] = [];
     if (typeof window !== "undefined") {
       const stored = localStorage.getItem(CART_KEY);
       if (stored) cart = JSON.parse(stored);
-      cart.push(item);
+      const idx = cart.findIndex((item: CartItem) => item.id === "baume-precieux");
+      if (idx !== -1) {
+        cart[idx].quantity = quantity;
+      } else {
+        cart.push({
+          id: "baume-precieux",
+          name: "Le Baume Précieux",
+          price: 25,
+          image: "/produit.webp",
+          quantity,
+        });
+      }
       localStorage.setItem(CART_KEY, JSON.stringify(cart));
       setAdded(true);
       setCartQty(getCartQuantity());
       setAlreadyInCart(true);
+      setCartQuantity(quantity);
       setTimeout(() => setAdded(false), 1500);
     }
   };
@@ -263,6 +289,10 @@ export default function ProductPage() {
                 <Truck className="w-4 h-4 inline mr-1" />
                 Livraison en France métropolitaine
               </p>
+              <p className="text-xs text-[#C9A74D] mt-1 font-medium flex items-center">
+                <Truck className="w-4 h-4 inline mr-1" />
+                Livraison gratuite à partir de 2 produits !
+              </p>
             </div>
 
            
@@ -273,7 +303,7 @@ export default function ProductPage() {
                 <span className="text-sm font-medium text-gray-700">Quantité:</span>
                 <div className="flex items-center border border-[#E6D2B5] rounded-lg">
                   <button
-                    onClick={() => setQuantity(1)}
+                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
                     className="p-2 hover:bg-[#F7E0D8]/50 transition-colors"
                     disabled={quantity === 1}
                   >
@@ -281,17 +311,14 @@ export default function ProductPage() {
                   </button>
                   <span className="px-4 py-2 min-w-[3rem] text-center">{quantity}</span>
                   <button
-                    onClick={() => { setQuantity(1); setShowNotice(true); }}
+                    onClick={() => setQuantity(quantity + 1)}
                     className="p-2 hover:bg-[#F7E0D8]/50 transition-colors"
-                   
                   >
                     <Plus className="w-4 h-4" />
                   </button>
                 </div>
               </div>
-              {showNotice && (
-                <span className="text-xs text-[#C9A74D] mt-1">(Temporairement, le nombre de Baume est limité à 1 unité par personne)</span>
-              )}
+
             </div>
 
             {/* CTA Button */}
@@ -300,17 +327,32 @@ export default function ProductPage() {
                 size="lg"
                 className="w-full bg-[#C9A74D] hover:bg-[#C9A74D]/90 text-white py-6 text-lg rounded-full transition"
                 onClick={handleAddToCart}
-                disabled={added || alreadyInCart}
+                disabled={added || (alreadyInCart && quantity === cartQuantity)}
               >
-                {alreadyInCart ? "Déjà dans le panier" : added ? "Ajouté au panier !" : `Ajouter au panier - ${25 * quantity}€`}
+                {alreadyInCart
+                  ? quantity !== cartQuantity
+                    ? "Mettre à jour le panier"
+                    : "Déjà dans le panier"
+                  : added
+                  ? "Ajouté au panier !"
+                  : `Ajouter au panier - ${25 * quantity}€`}
               </Button>
               <Button
-                asChild
                 size="lg"
                 variant="outline"
                 className="w-full border-[#C9A74D] text-[#C9A74D] hover:bg-[#C9A74D]/10 py-6 text-lg rounded-full"
+                disabled={alreadyInCart && quantity !== cartQuantity}
+                aria-disabled={alreadyInCart && quantity !== cartQuantity}
+                title={alreadyInCart && quantity !== cartQuantity ? "Veuillez valider la mise à jour de la quantité avant d'accéder au panier" : undefined}
+                onClick={e => {
+                  if (alreadyInCart && quantity !== cartQuantity) {
+                    e.preventDefault();
+                  } else {
+                    window.location.href = '/panier';
+                  }
+                }}
               >
-                <a href="/panier">Voir mon panier</a>
+                Voir mon panier
               </Button>
             </div>
 

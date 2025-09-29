@@ -49,7 +49,9 @@ export default function PaiementPage() {
     setLoading(false);
   }, []);
 
+  const totalQuantity = cart.reduce((sum, item) => sum + item.quantity, 0);
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const livraison = totalQuantity >= 2 ? 0 : 5.25;
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -143,11 +145,11 @@ export default function PaiementPage() {
           </div>
           <div className="flex items-center justify-between text-base text-gray-700">
             <span>Livraison</span>
-            <span>5,25€</span>
+            <span>{livraison === 0 ? 'Offerte' : '5,25€'}</span>
           </div>
           <div className="flex items-center justify-between text-lg font-bold text-[#C9A74D]">
             <span>Total à payer</span>
-            <span>{(total + 5.25).toFixed(2)}€</span>
+            <span>{(total + livraison).toFixed(2)}€</span>
           </div>
         </div>
         <form className="space-y-4 bg-white/80 rounded-xl shadow p-6" onSubmit={handleSubmit}>

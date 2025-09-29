@@ -52,7 +52,7 @@ export default function CartPage() {
     setCart((prev) => {
       const updated = prev.map((item) =>
         item.id === id
-          ? { ...item, quantity: 1 } // Toujours 1
+          ? { ...item, quantity: Math.max(1, item.quantity + delta) }
           : item
       );
       localStorage.setItem(CART_KEY, JSON.stringify(updated));
@@ -73,8 +73,9 @@ export default function CartPage() {
     localStorage.setItem(CART_KEY, JSON.stringify([]));
   };
 
+  const totalQuantity = cart.reduce((sum, item) => sum + item.quantity, 0);
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const livraison = 5.25;
+  const livraison = totalQuantity >= 2 ? 0 : 5.25;
   const totalAvecLivraison = (total + livraison).toFixed(2);
 
   return (
@@ -157,19 +158,15 @@ export default function CartPage() {
                     <Badge className="bg-[#F7E0D8] text-[#C9A74D]">x{item.quantity}</Badge>
                   </div>
                   <div className="flex items-center gap-2 mt-2">
-                    <Button size="icon" variant="outline" className="border-[#C9A74D] text-[#C9A74D]" disabled>
+                    <Button size="icon" variant="outline" className="border-[#C9A74D] text-[#C9A74D]" onClick={() => updateQuantity(item.id, -1)} disabled={item.quantity === 1}>
                       <Minus className="w-4 h-4" />
                     </Button>
-                    <span className="px-3 text-gray-700 font-medium">1</span>
+                    <span className="px-3 text-gray-700 font-medium">{item.quantity}</span>
                     <Button
                       size="icon"
                       variant="outline"
                       className="border-[#C9A74D] text-[#C9A74D]"
-                      disabled
-                      onClick={() => {
-                        setShowAlert(true);
-                        setTimeout(() => setShowAlert(false), 3000);
-                      }}
+                      onClick={() => updateQuantity(item.id, 1)}
                     >
                       <Plus className="w-4 h-4" />
                     </Button>
@@ -186,7 +183,7 @@ export default function CartPage() {
               </div>
               <div className="flex items-center justify-between text-base text-gray-700">
                 <span>Livraison</span>
-                <span>{livraison}€</span>
+                <span>{livraison === 0 ? 'Offerte' : '5,25€'}</span>
               </div>
               <div className="flex items-center justify-between text-lg font-bold text-[#C9A74D]">
                 <span>Total à payer</span>

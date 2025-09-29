@@ -4,7 +4,7 @@ import { createOrder } from "./order";
 import { ObjectId } from "mongodb";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2023-10-16",
+  apiVersion: "2025-07-30.basil",
 });
 
 export async function POST(req: NextRequest) {
@@ -25,15 +25,19 @@ export async function POST(req: NextRequest) {
       },
       quantity: item.quantity,
     }));
-    // Add shipping as a line item
-    line_items.push({
-      price_data: {
-        currency: "eur",
-        product_data: { name: "Livraison" },
-        unit_amount: 525,
-      },
-      quantity: 1,
-    });
+    // Calcul de la quantité totale pour la livraison gratuite
+    const totalQuantity = cart.reduce((sum: number, item: any) => sum + (item.quantity || 0), 0);
+    if (totalQuantity < 2) {
+      // Add shipping as a line item uniquement si < 2 produits
+      line_items.push({
+        price_data: {
+          currency: "eur",
+          product_data: { name: "Livraison" },
+          unit_amount: 525,
+        },
+        quantity: 1,
+      });
+    }
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       line_items,

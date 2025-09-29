@@ -85,7 +85,7 @@ export function Footer() {
               </div>
               <p className="flex items-center space-x-2 pt-1 text-sm">
                 <Truck className="w-4 h-4" />
-                <span>Livraison : 5,25€ (max 250g)</span>
+                <span>Livraison : 5,25€ pour 1 produit, offerte dès 2 produits !</span>
               </p>
             </div>
           </div>

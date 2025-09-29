@@ -408,13 +408,14 @@ export default function HomePage() {
 
             <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 mb-8 max-w-sm mx-auto">
               <div className="text-4xl font-bold text-[#FFF] mb-2 drop-shadow">
-                25€{" "}
+                25€
                 <span className="text-base font-normal text-[#F7E0D8]">
-                  (hors frais de livraison)
+                  {" "}(livraison offerte dès 2 produits)
                 </span>
               </div>
-              <p className="text-[#F7E0D8] text-sm">
-                Livraison : 5,25€ pour 1 colis (max 250g)
+              <p className="text-[#F7E0D8] text-sm flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 mr-1 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 16V6a1 1 0 011-1h13a1 1 0 011 1v10m-1 4a2 2 0 100-4 2 2 0 000 4zm-10 0a2 2 0 100-4 2 2 0 000 4zm10-4H7m10 0V6m0 10v2a1 1 0 01-1 1H6a1 1 0 01-1-1v-2" /></svg>
+                Livraison : 5,25€ pour 1 produit, offerte dès 2 produits !
               </p>
             </div>
 

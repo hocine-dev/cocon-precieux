@@ -52,16 +52,10 @@ export const metadata: Metadata = {
       "Le Baume Précieux : soin naturel multi-usage, 100% végan, 97% naturel, fabriqué en France. Hydrate, apaise, sublime la peau.",
     images: [
       {
-        url: "https://cocon-precieux.fr/image1.webp",
+        url: "https://cocon-precieux.fr/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Cocon Précieux - Le Baume Précieux",
-      },
-      {
-        url: "https://cocon-precieux.fr/logo.png",
-        width: 512,
-        height: 512,
-        alt: "Cocon Précieux Logo",
+        alt: "Cocon Précieux - Baume multi-usages hydratant, nourrissant et protecteur",
       },
     ],
   },
@@ -69,7 +63,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Cocon Précieux - Baume multi-usage naturel, végan, bio, made in France",
     description: "Le Baume Précieux : soin naturel multi-usage, 100% végan, 97% naturel, fabriqué en France.",
-    images: ["https://cocon-precieux.fr/image1.webp"],
+    images: ["https://cocon-precieux.fr/og-image.png"],
     site: "@cocon_precieux",
   },
   generator: 'Hocine Dev',

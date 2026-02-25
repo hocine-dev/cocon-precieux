@@ -25,7 +25,7 @@ export const viewport: Viewport = {
 
 // The corrected Metadata export (without themeColor)
 export const metadata: Metadata = {
-  metadataBase: new URL("https://cocon-precieux.fr"),
+  metadataBase: new URL("https://www.xn--coconprcieux-heb.fr"),
   title: "Cocon Précieux - Baume multi-usage naturel, végan, bio, made in France",
   description:
     "Le Baume Précieux : soin naturel multi-usage, 100% végan, 97% naturel, fabriqué en France. Hydrate, apaise, sublime la peau. Livraison rapide.",
@@ -36,26 +36,27 @@ export const metadata: Metadata = {
   publisher: "Cocon Précieux",
   robots: "index, follow",
   alternates: {
-    canonical: "https://cocon-precieux.fr/",
+    canonical: "https://www.xn--coconprcieux-heb.fr/",
     languages: {
-      'fr': 'https://cocon-precieux.fr/',
-      'en': 'https://cocon-precieux.fr/en',
+      'fr': 'https://www.xn--coconprcieux-heb.fr/',
     },
   },
   openGraph: {
     type: "website",
     locale: "fr_FR",
-    url: "https://cocon-precieux.fr/",
+    url: "https://www.xn--coconprcieux-heb.fr/",
     siteName: "Cocon Précieux",
     title: "Cocon Précieux - Baume multi-usage naturel, végan, bio, made in France",
     description:
       "Le Baume Précieux : soin naturel multi-usage, 100% végan, 97% naturel, fabriqué en France. Hydrate, apaise, sublime la peau.",
     images: [
       {
-        url: "https://cocon-precieux.fr/og-image.jpg",
+        url: "https://www.xn--coconprcieux-heb.fr/og-image.jpg",
         width: 1200,
         height: 630,
         alt: "Cocon Précieux - Baume multi-usages hydratant, nourrissant et protecteur",
+        secureUrl: "https://www.xn--coconprcieux-heb.fr/og-image.jpg",
+        type: "image/jpeg",
       },
     ],
   },
@@ -63,7 +64,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Cocon Précieux - Baume multi-usage naturel, végan, bio, made in France",
     description: "Le Baume Précieux : soin naturel multi-usage, 100% végan, 97% naturel, fabriqué en France.",
-    images: ["https://cocon-precieux.fr/og-image.jpg"],
+    images: ["https://www.xn--coconprcieux-heb.fr/og-image.jpg"],
     site: "@cocon_precieux",
   },
   generator: 'Hocine Dev',
@@ -91,8 +92,8 @@ export default function RootLayout({
               "@context": "https://schema.org",
               "@type": "Organization",
               name: "Cocon Précieux",
-              url: "https://cocon-precieux.fr",
-              logo: "https://cocon-precieux.fr/logo.png",
+              url: "https://www.xn--coconprcieux-heb.fr",
+              logo: "https://www.xn--coconprcieux-heb.fr/logo.png",
               description: "Cosmétiques naturels et soins bio fabriqués en France",
               address: {
                 "@type": "PostalAddress",
@@ -167,11 +168,11 @@ export default function RootLayout({
                 reviewCount: "127",
               },
               image: [
-                "https://cocon-precieux.fr/image1.webp",
-                "https://cocon-precieux.fr/logo.png"
+                "https://www.xn--coconprcieux-heb.fr/image1.webp",
+                "https://www.xn--coconprcieux-heb.fr/logo.png"
               ],
               sku: "CP-BAUME-001",
-              url: "https://cocon-precieux.fr/produit",
+              url: "https://www.xn--coconprcieux-heb.fr/produit",
               category: "Cosmétiques naturels",
               review: [
                 {
@@ -192,10 +193,10 @@ export default function RootLayout({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "WebSite",
-              url: "https://cocon-precieux.fr/",
+              url: "https://www.xn--coconprcieux-heb.fr/",
               potentialAction: {
                 "@type": "SearchAction",
-                target: "https://cocon-precieux.fr/search?q={search_term_string}",
+                target: "https://www.xn--coconprcieux-heb.fr/search?q={search_term_string}",
                 "query-input": "required name=search_term_string"
               }
             })
